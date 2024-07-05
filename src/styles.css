@@ -1,0 +1,39 @@
+/* You can add global styles to this file, and also import other style files */
+.btn-ns{
+	background-color: #15dffd !important;
+}
+
+.btn-ns:active{
+	border: 1px solid black !important;
+	background-color: #15dffd !important;
+	color: black; 
+}
+
+
+.bg-ns {
+	background-color: #15dffd !important;
+}
+
+.table-ns {
+	background-color: #15dffd !important;
+}
+.table-ns, tr td {
+	background-color: #15dffd !important;
+}
+
+.nospaceincell
+{
+	width:1%;
+	white-space: nowrap;
+}
+
+table,thead , th, td, tr{
+	border-collapse: separate !important;
+	/*border: 1px solid black; */
+	border-radius: 7px;
+  
+}
+td
+{
+	padding: 0.5rem
+}

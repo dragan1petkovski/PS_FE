@@ -1,0 +1,335 @@
+<div class="p-3">
+    <table class="m-0 p-0 table-ns">
+    @if(currentSelectedTab.clientTab)
+    {
+        <thead>
+            <tr>
+                <td class="table-ns">Name</td>
+                <td class="table-ns">Create Date</td>
+                <td class="table-ns" colspan="2">Update Date</td>
+
+            </tr>
+        </thead>
+        <tbody class="bg-white">
+            <tr *ngFor="let item of tableData.clients" style="background-color: #15dffd !important;">
+                <td class="bg-white" style="background-color: white !important;">{{item.name}}</td>
+                <td class="bg-white" style="background-color: white !important;">{{item.createdate}}</td>
+                <td class="bg-white" style="background-color: white !important;">{{item.updatedate}}</td>
+                <td class="nospaceincell"  style="background-color: white !important;">
+                    <i id="{{item.id}}-edit" class="bi bi-pencil" (click) = "OpenClientModal(item.id)"></i>&nbsp;
+                    <i id="{{item.id}}-delete" class="bi bi-trash" (click) = "DeleteModal(item.id,item.name,'client')"></i>
+                </td>
+            </tr>
+        </tbody>
+
+    }
+    @else if(currentSelectedTab.userTab)
+    {
+    <thead class="table-ns">
+        <tr>
+            <td >First Name</td>
+            <td>Last Name</td>
+            <td>E-mail</td>
+            <td>username</td>
+            <td>Create Date</td>
+            <td colspan="2">Update Date</td>
+            
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let item of tableData.users" style="background-color: #15dffd !important;">
+            <td style="background-color: white !important;">{{item.firstname}}</td>
+            <td style="background-color: white !important;">{{item.lastname}}</td>
+            <td style="background-color: white !important;">{{item.email}}</td>
+            <td style="background-color: white !important;">{{item.username}}</td>
+            <td style="background-color: white !important;">{{item.createdate}}</td>
+            <td style="background-color: white !important;">{{item.updatedate}}</td>
+            <td class="nospaceincell" style="background-color: white !important;">
+                <i id="{{item.id}}-edit" class="bi bi-pencil" (click) = "OpenUserModal(item.id)"></i>&nbsp;
+                <i id="{{item.id}}-delete" class="bi bi-trash"(click) = "DeleteModal(item.id,item.username,'user')"></i>
+            </td>
+        </tr>
+    </tbody>
+    }
+    @else if(currentSelectedTab.teamTab)
+    {
+        <thead class="table-ns">
+            <tr>
+                <td>Name</td>
+                <td>Client Name</td>
+                <td>Creat Date</td>
+                <td colspan="2">Update Date</td>
+            </tr>
+        </thead>
+        <tbody >
+            <tr *ngFor="let item of tableData.teams" style="background-color: #15dffd !important;">
+                <td style="background-color: white !important;">{{item.name}}</td>
+                <td style="background-color: white !important;">{{item.clientname}}</td>
+                <td style="background-color: white !important;">{{item.createdate}}</td>
+                <td style="background-color: white !important;">{{item.updatedate}}</td>
+                <td class="nospaceincell" style="background-color: white !important;">
+                    <i id="{{item.id}}-edit" class="bi bi-pencil" (click)= "OpenTeamModal(item.id)"></i>&nbsp;
+                    <i id="{{item.id}}-delete" class="bi bi-trash"(click) = "DeleteModal(item.id,item.name,'team')"></i>
+                </td>
+            </tr>
+        </tbody>
+    }
+    </table>
+</div>
+
+  <!-- Add Client -->
+  <div class="modal" tabindex="-1" role="dialog" id="EditClientModal"> 
+  <div class="modal-dialog modal-lg" role="document"> 
+    <div class="modal-content"> 
+      <div class="modal-header"> 
+        <h4 class="modal-title">Add Client</h4> 
+      </div> 
+      <div class="modal-body"> 
+        <form id="AddClientForm">
+          <div class="row">
+            <div class="col-3 text-end">
+              <p>name of client</p>
+            </div>
+            <div class="col-9">
+              <input type="text" class="form-control">
+            </div>
+          </div>
+
+        </form>
+
+      </div> 
+      <div class="modal-footer"> 
+        <input type="submit" class="btn-ns btn" from="AddClientForm" value="Add Team">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
+          Close 
+        </button> 
+      </div> 
+    </div> 
+  </div> 
+</div>
+
+<!-- Add Team -->
+<div class="modal" tabindex="-1" role="dialog" id="EditTeamModal"> 
+<div class="modal-dialog modal-lg modal-dialog-scrollable" role="document"> 
+  <div class="modal-content"> 
+    <div class="modal-header"> 
+      <h4 class="modal-title">Add Team</h4> 
+    </div> 
+    <div class="modal-body">
+      <form id="AddTeamForm">
+        <div class="row mb-3 p-3" >
+          <select value="Choose client" class="form-control">
+            <option selected disabled hidden>Choose client</option>
+            <option>Client1</option>
+            <option>Client2</option>
+            <option>Client3</option>
+            <option>Client4</option>
+          </select>
+        </div>
+        <div class="row">
+          <div class="col-3 text-end">
+            <p>Enter Team name</p>
+          </div>
+          <div class="col-9">
+            <input type="text" class="form-control">
+          </div>
+        </div>
+        <div class="row">
+          <div class="row mt-3">
+            <div class="col-9 text-end">
+              <p>User1</p>
+            </div>
+            <div class="col-3">
+              <input type="checkbox">
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-9 text-end">
+              <p>User2</p>
+            </div>
+            <div class="col-3">
+              <input type="checkbox">
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-9 text-end">
+              <p>User3</p>
+            </div>
+            <div class="col-3">
+              <input type="checkbox">
+            </div>
+          </div>
+        </div>
+      </form>
+
+
+    </div> 
+    <div class="modal-footer">
+      <input  type="submit" form="AddTeamForm" class="btn btn-ns" value="Add Team">
+      <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button> 
+    </div> 
+  </div> 
+</div> 
+</div>
+
+<!-- Add User -->
+<div class="modal" tabindex="-1" role="dialog" id="EditUserModal"> 
+<div class="modal-dialog modal-lg modal-dialog-scrollable" role="document"> 
+  <div class="modal-content"> 
+    <div class="modal-header"> 
+      <h4 class="modal-title">AddUser</h4> 
+    </div> 
+    <div class="modal-body">
+
+      <div class="row mt-3">
+        <div class="col-3 text-end">
+          <p>Enter first name</p>
+        </div>
+        <div class="col-9">
+          <input type="text" class="form-control">
+        </div>
+      </div>
+      
+      <div class="row mt-3">
+        <div class="col-3 text-end">
+          <p>Enter last name</p>
+        </div>
+        <div class="col-9">
+          <input type="text" class="form-control">
+        </div>
+      </div>
+      
+      <div class="row mt-3">
+        <div class="col-3 text-end">
+          <p>Enter email</p>
+        </div>
+        <div class="col-9">
+          <input type="email" class="form-control">
+        </div>
+      </div>
+      
+      <div class="row mt-3">
+        <div class="col-3 text-end">
+          <p>Enter username</p>
+        </div>
+        <div class="col-9">
+          <input type="text" class="form-control">
+        </div>
+      </div>
+      
+      <div class="row mt-3">
+        <div class="col-3 text-end">
+          <p>Enter Password</p>
+        </div>
+        <div class="col-9">
+          <input type="password" class="form-control">
+        </div>
+      </div>
+      
+      <div class="row mt-3" id="AddToTeams">
+        <div class="row mb-3">
+          <div class="col" >
+            <select value="Choose client" class="form-control">
+              <option selected disabled hidden>Choose client</option>
+              <option>Client1</option>
+              <option>Client2</option>
+              <option>Client3</option>
+              <option>Client4</option>
+            </select>
+          </div>
+          <div class="col" >
+            <select value="Choose Team" class="form-control">
+              <option selected disabled hidden>Choose Team</option>
+              <option>Team1</option>
+              <option>Team2</option>
+              <option>Team3</option>
+              <option>Team4</option>
+            </select>
+          </div>
+          <div class="col">
+            <button class="btn btn-ns">Add to Team</button>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col" >
+            <select value="Choose client" class="form-control">
+              <option selected disabled hidden>Choose client</option>
+              <option>Client1</option>
+              <option>Client2</option>
+              <option>Client3</option>
+              <option>Client4</option>
+            </select>
+          </div>
+          <div class="col" >
+            <select value="Choose Team" class="form-control">
+              <option selected disabled hidden>Choose Team</option>
+              <option>Team1</option>
+              <option>Team2</option>
+              <option>Team3</option>
+              <option>Team4</option>
+            </select>
+          </div>
+          <div class="col">
+            <button class="btn btn-ns">Add to Team</button>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col" >
+            <select value="Choose client" class="form-control">
+              <option selected disabled hidden>Choose client</option>
+              <option>Client1</option>
+              <option>Client2</option>
+              <option>Client3</option>
+              <option>Client4</option>
+            </select>
+          </div>
+          <div class="col" >
+            <select value="Choose Team" class="form-control">
+              <option selected disabled hidden>Choose Team</option>
+              <option>Team1</option>
+              <option>Team2</option>
+              <option>Team3</option>
+              <option>Team4</option>
+            </select>
+          </div>
+          <div class="col">
+            <button class="btn btn-ns">Add to Team</button>
+          </div>
+        </div>
+      </div>
+
+
+    </div> 
+    <div class="modal-footer"> 
+      <input type="submit" from="AddUserForm" value="Add User" class="btn btn-ns">
+      <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
+        Close 
+      </button> 
+    </div> 
+  </div> 
+</div> 
+</div>
+
+
+<div id="DeleteModal" class="modal" tabindex="-1" role="dialog" >
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+  
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title">Delete {{itemname}}</h4>
+          
+        </div>
+        <div class="modal-body">
+          <p>Do you want to delete {{itemtype}} {{itemname}}?</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-danger" (click) = "DeleteItem(itemid,itemtype)"> Delete {{itemtype}}</button>
+            <button type="button" class="btn btn-ns" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+  
+    </div>
+  </div>

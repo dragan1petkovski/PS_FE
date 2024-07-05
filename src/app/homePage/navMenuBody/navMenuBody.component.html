@@ -1,0 +1,23 @@
+<nav class="navbar m-0 p-0">
+      <ul class="navbar-nav  w-100">
+        @if(selectTab.credentialsTab)
+        {
+          <li class="nav-item mb-1 w-100" *ngFor="let item of this.companyItems" >
+            <button type="button" id={{item.id}} class="btn btn-ns w-100 text-start navbodybtns" (click) = "ChnageCredentialList(item.credentialURL,item.id)">{{item.name}}</button>
+          </li>
+        }
+        @else if(selectTab.certificatesTab)
+        {
+          <li class="nav-item mb-1" *ngFor="let item of this.companyItems" >
+            <button type="button" id={{item.id}} class="btn btn-ns w-100 text-start navbodybtns" (click) = "ChnageCredentialList(item.certificateURL,item.id)" >{{item.name}}</button>
+          </li>
+        }
+        @else if(selectTab.privateTab)
+        {
+          <li class="nav-item mb-1 w-100" *ngFor="let item of this.companyItems" >
+            <button type="button" id={{item.id}} class="btn btn-ns w-100 text-start navbodybtns" (click) = "ChnagePersonalCredentialList(Link_getPersonalCredentialsByFolderid(),GetSessionID(),item.id)">{{item.name}}</button>
+          </li>
+        }
+
+      </ul>
+  </nav>

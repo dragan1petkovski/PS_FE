@@ -1,0 +1,168 @@
+<div class="p-3">
+    <table class="m-0 p-0 table-ns">
+    @if(selectTab.credentialsTab)
+    {
+        <thead>
+            <tr>
+                <td class="table-ns">Team</td>
+                <td class="table-ns">Domain</td>
+                <td class="table-ns">Username</td>
+                <td class="table-ns">Remote</td>
+                <td class="table-ns">Note</td>
+                <td colspan="2" class="table-ns">Password</td>
+            </tr>
+        </thead>
+        <tbody class="bg-white">
+            <tr *ngFor="let item of items" style="background-color: #15dffd !important;">
+                <td style="background-color: white !important;">{{item.teamname}}</td>
+                <td style="background-color: white !important;">{{item.domain}}</td>
+                <td style="background-color: white !important;">{{item.username}}</td>
+                <td style="background-color: white !important;">{{item.remote}}</td>
+                <td style="background-color: white !important;">{{item.note}}</td>
+                <td style="background-color: white !important;" class="nospaceincell">
+                    <p id={{item.id}} class="d-inline">{{item.password}}</p>&nbsp;
+                    <i class="bi bi-copy ml-1" (click) = "CopyPassword(item.id)"></i>&nbsp;
+                    <i type="cred" id={{item.id}}-eye class="bi bi-eye" (click) = "ShowPassword(item.id)"></i>
+                </td>
+                <td class="nospaceincell"  style="background-color: white !important;">
+                    <i class="bi bi-pencil"></i>&nbsp;
+                    <i class="bi bi-trash" (click) = "OpenDeleteCredentialModal('DeleteCredential',item.id,item.username,item.domain, item.teamid)"></i> &nbsp;
+                </td>
+            </tr>
+        </tbody>
+
+    }
+    @else if(selectTab.certificatesTab)
+    {
+    <thead>
+        <tr>
+            <td>Name</td>
+            <td>IssuedTo</td>
+            <td>IssuedBy</td>
+            <td>Expriation Date</td>
+            <td colspan="2">Password</td>
+            
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let item of items" style="background-color: #15dffd !important;">
+            <td style="background-color: white !important;">{{item.name}}</td>
+            <td style="background-color: white !important;">{{item.issuedTo}}</td>
+            <td style="background-color: white !important;">{{item.issuedBy}}</td>
+            <td style="background-color: white !important;">{{item.expirationDate}}</td>
+            <td class="nospaceincell" style="background-color: white !important;">
+                <p id={{item.id}} class="d-inline">{{item.password}}</p>&nbsp;
+                <i class="bi bi-copy ml-1"  (click) = "CopyPassword(item.id)"></i>&nbsp;
+                <i type="cert" id={{item.id}}-eye class="bi bi-eye" (click) = "ShowPassword(item.id)"></i>
+            </td>
+           
+            <td class="nospaceincell" style="background-color: white !important;">
+                <i class="bi bi-pencil"></i> &nbsp;
+                <i class="bi bi-trash"></i> &nbsp;
+                <i class="bi bi-send"></i> &nbsp;
+                <i class="bi bi-save"></i>
+            </td>
+        </tr>
+    </tbody>
+    }
+    @else if(selectTab.privateTab)
+    {
+        <thead>
+            <tr>
+                <td>Domain</td>
+                <td>Username</td>
+                <td>Remote</td>
+                <td>Note</td>
+                <td colspan="2">Password</td>
+            </tr>
+        </thead>
+        <tbody >
+            <tr *ngFor="let item of items" style="background-color: #15dffd !important;">
+                <td style="background-color: white !important;">{{item.domain}}</td>
+                <td style="background-color: white !important;">{{item.username}}</td>
+                <td style="background-color: white !important;">{{item.remote}}</td>
+                <td style="background-color: white !important;">{{item.note}}</td>
+                <td class="nospaceincell" style="background-color: white !important;">
+                    <p id={{item.id}} class="d-inline">{{item.password}}</p>&nbsp;
+                    <i class="bi bi-copy ml-1" (click) = "CopyPassword(item.id)"></i>&nbsp;
+                    <i type="cred" id={{item.id}}-eye class="bi bi-eye" (click) = "ShowPassword(item.id)"></i>
+                </td>
+                <td class="nospaceincell" style="background-color: white !important;">
+                    <i class="bi bi-pencil"></i>&nbsp;
+                    <i class="bi bi-trash"></i> &nbsp;
+                </td>
+            </tr>
+        </tbody>
+    }
+    </table>
+</div>
+@if(selectTab.credentialsTab)
+{
+    <div
+    class="modal"
+    tabindex="-1"
+    role="dialog"
+    style='display:none'
+    id="DeleteCredential"> 
+    <div class="modal-dialog" role="document"> 
+      <div class="modal-content"> 
+        <div class="modal-header"> 
+          <h4 class="modal-title">Delete Credential</h4> 
+        </div> 
+        <div class="modal-body"> 
+            @if(responseStatus === "OK")
+            {
+                <div class="alert alert-success" role="alert">
+                    Credential successfully added
+                  </div>
+            }
+            @else if (responseStatus === "KO")
+            {
+                <div class="alert alert-danger" role="alert">
+                    Failed to add credential
+                </div>
+            }
+            Do you want to delete {{deleteModalName}}?
+        </div> 
+        <div class="modal-footer"> 
+            <button type="button" class="btn btn-ns" (click) = "DeleteCredential()">Delete credential </button>
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
+              Close 
+            </button> 
+        </div> 
+      </div> 
+    </div> 
+    </div>
+
+    <div
+    class="modal"
+    tabindex="-1"
+    role="dialog"
+    style='display:none'
+    id="GiveCredential"> 
+    <div class="modal-dialog" role="document"> 
+      <div class="modal-content"> 
+        <div class="modal-header"> 
+          <h4 class="modal-title">Send Credential</h4> 
+        </div> 
+        <div class="modal-body"> 
+            <div class="row">
+                <div class="col">
+    
+                </div>
+                <div class="col">
+                    
+                </div>
+            </div>
+    
+        </div> 
+        <div class="modal-footer"> 
+          <button type="button" class="btn btn-danger" 
+                  > 
+            Close 
+          </button> 
+        </div> 
+      </div> 
+    </div> 
+    </div>
+}
