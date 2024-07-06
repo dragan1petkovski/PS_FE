@@ -12,13 +12,25 @@
         <h4 class="modal-title">Add Client</h4> 
       </div> 
       <div class="modal-body"> 
-        <form id="AddClientForm">
+        <form id="AddClientForm" [formGroup] = "AddClientFormGroup">
+          @if(postStatus.status === "OK")
+          {
+            <div class="alert alert-success">
+              <p>Successfully added client</p>
+            </div>
+          }
+          @else if( postStatus.status === "KO")
+          {
+            <div class="alert alert-danger">
+              <p>Failed to add new client</p>
+            </div>
+          }
           <div class="row">
             <div class="col-3 text-end">
               <p>name of client</p>
             </div>
             <div class="col-9">
-              <input type="text" class="form-control">
+              <input type="text" class="form-control" formControlName = "name">
             </div>
           </div>
 
@@ -26,7 +38,7 @@
 
       </div> 
       <div class="modal-footer"> 
-        <input type="submit" class="btn-ns btn" from="AddClientForm" value="Add Team">
+        <input type="submit" class="btn-ns btn" from="AddClientForm" value="Add Client" (click) = "AddClient()" [disabled] = "!AddClientFormGroup.valid">
         <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
           Close 
         </button> 
