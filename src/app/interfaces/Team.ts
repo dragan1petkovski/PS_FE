@@ -5,3 +5,10 @@ export interface iTeam {
     createdate: Date,
     updatedate: Date
 }
+
+export interface iPostTeam
+{
+    name: string | null | undefined,
+    clientid: string | null | undefined,
+    userids: string[] | null | undefined
+}

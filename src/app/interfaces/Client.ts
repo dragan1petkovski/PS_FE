@@ -1,8 +1,8 @@
 export interface iClient {
     id: string,
     name: string,
-    createdate: Date,
-    updatedate: Date
+    createdate: Date | null,
+    updatedate: Date | null
 }
 
 export interface iPostClient{

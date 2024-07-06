@@ -1,6 +1,6 @@
 <nav class="navbar navbar-default">
     <button type="button" class="btn btn-ns" data-bs-toggle="modal" data-bs-target="#AddClientModal">Add Client</button>
-    <button type="button" class="btn btn-ns" data-bs-toggle="modal" data-bs-target="#AddTeamModal">Add Team</button>
+    <button type="button" class="btn btn-ns" (click) = "ShowAddTeamModal()">Add Team</button>
     <button type="button" class="btn btn-ns" data-bs-toggle="modal" data-bs-target="#AddUserModal">Add User</button>
 </nav>
 
@@ -55,56 +55,64 @@
       <h4 class="modal-title">Add Team</h4> 
     </div> 
     <div class="modal-body">
-      <form id="AddTeamForm">
-        <div class="row mb-3 p-3" >
-          <select value="Choose client" class="form-control">
-            <option selected disabled hidden>Choose client</option>
-            <option>Client1</option>
-            <option>Client2</option>
-            <option>Client3</option>
-            <option>Client4</option>
-          </select>
-        </div>
-        <div class="row">
+      <form id="AddTeamForm" [formGroup]="AddTeamFormGroup">
+
+        @if(postStatus.status === "OK")
+        {
+          <div class="alert alert-success">
+            <p>Team added Successfully</p>
+          </div>
+        }
+        @else if(postStatus.status === "KO")
+        {
+          <div class="alert alert-danger">
+            <p>Failed to add new Team</p>
+          </div>
+        }
+    
+        <div class="row mb-3 p-3">
           <div class="col-3 text-end">
             <p>Enter Team name</p>
           </div>
           <div class="col-9">
-            <input type="text" class="form-control">
+            <input type="text" class="form-control" formControlName="name">
           </div>
         </div>
+
+        <div class="row " >
+          <div class="col-3 text-end">
+            <p>Choose client</p>
+          </div>
+          <div class="col-9">
+            <select value="Choose client" class="form-control" formControlName="chooseClient">
+                <option  *ngFor = "let client of clientList"  [ngValue]=client.id>{{client.name}}</option >
+             
+            </select>
+
+          </div>
+          
+        </div>
+
         <div class="row">
-          <div class="row mt-3">
-            <div class="col-9 text-end">
-              <p>User1</p>
+          <ng-container *ngFor = "let user of userList">
+            <div class="row mt-3">
+              <div class="col-9 text-end">
+                <p>{{user.fullname}}({{user.username}})</p>
+              </div>
+              <div class="col-3">
+                <input type="checkbox" value={{user.id}} class="teamUserCheckboxes">
+              </div>
             </div>
-            <div class="col-3">
-              <input type="checkbox">
-            </div>
-          </div>
-          <div class="row mt-3">
-            <div class="col-9 text-end">
-              <p>User2</p>
-            </div>
-            <div class="col-3">
-              <input type="checkbox">
-            </div>
-          </div>
-          <div class="row mt-3">
-            <div class="col-9 text-end">
-              <p>User3</p>
-            </div>
-            <div class="col-3">
-              <input type="checkbox">
-            </div>
-          </div>
+          </ng-container>
+
+
         </div>
       </form>
 
 
     </div> 
     <div class="modal-footer">
-      <input  type="submit" form="AddTeamForm" class="btn btn-ns" value="Add Team">
+      <input  type="submit" form="AddTeamForm" class="btn btn-ns" value="Add Team" (click) = "AddTeam()" [disabled]="!AddTeamFormGroup.valid">
       <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button> 
     </div> 
   </div> 

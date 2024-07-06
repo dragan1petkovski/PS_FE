@@ -8,3 +8,10 @@ export interface iUser{
     createdate: string,
     updatedate: string
 }
+
+export interface iPartUser{
+    id: string,
+    fullname: string,
+    username: string,
+
+}

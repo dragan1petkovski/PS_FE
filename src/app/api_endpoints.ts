@@ -33,6 +33,7 @@ export class api_endpoints
     static readonly getAllTeams = "api/team/GetAllTeams"
 
     static readonly AddClient = "api/client/AddClient"
+    static readonly AddTeam = "api/team/AddTeam"
 
 }
 
