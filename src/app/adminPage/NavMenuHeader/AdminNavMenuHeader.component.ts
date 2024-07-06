@@ -5,8 +5,8 @@ import { iClient, iPostClient } from "../../interfaces/Client";
 import { ConnectionService} from "../../utility/connection.service"
 import { api_endpoints } from "../../api_endpoints";
 import { CommonModule, NgFor } from "@angular/common";
-import { iPartUser } from "../../interfaces/user"
-import { iPostTeam } from "../../interfaces/Team";
+import { iPartUser, iPostUser } from "../../interfaces/user"
+import { iClientTeamMapping, iPostTeam } from "../../interfaces/Team";
 
 @Component({
     standalone: true,
@@ -31,6 +31,15 @@ export class AdminNavMenuHeaderComponent
         chooseClient: new FormControl('',[Validators.required])
     })
 
+    //Add User
+    clientTeamMappingList: iClientTeamMapping[] = []
+    AddUserFormGroup = new FormGroup({
+        firstname: new FormControl('',[Validators.required]),
+        lastname: new FormControl('',[Validators.required]),
+        username: new FormControl('',[Validators.required]),
+        email: new FormControl('',[Validators.required])
+    })
+
     constructor (private connectionService: ConnectionService) {}
 
 
@@ -39,7 +48,6 @@ export class AdminNavMenuHeaderComponent
         let newClient: iPostClient = { name: this.AddClientFormGroup.value.name}
         this.postStatus = (await this.connectionService.postItem(api_endpoints.AddClient,newClient)) as iPOstStatus
     }
-
 
     async AddTeam()
     {
@@ -76,4 +84,41 @@ export class AdminNavMenuHeaderComponent
     {
         return this.connectionService.getItems(api_endpoints.GetAllPartUsers)
     }
+
+    async AddUser()
+    {
+        let postUser: iPostUser = {
+            firstname: this.AddUserFormGroup.value.firstname,
+            lastname: this.AddUserFormGroup.value.lastname,
+            email: this.AddUserFormGroup.value.email,
+            username: this.AddUserFormGroup.value.username,
+            clientTeamPairs: []
+        }
+        let usercheckboxes = document.getElementsByClassName("usercheckboxes") as HTMLCollectionOf<HTMLInputElement>
+        for(let usercheckbox of usercheckboxes)
+        {
+            let temp = usercheckbox as HTMLInputElement
+            if(temp.checked)
+            {
+                postUser.clientTeamPairs?.push(JSON.parse(temp.value))
+            }
+        }
+
+        this.postStatus = (await this.connectionService.postItem(api_endpoints.AddUser,postUser)) as iPOstStatus
+        this.AddUserFormGroup.reset()
+        for(let usercheckbox of usercheckboxes)
+            {
+                let temp = usercheckbox as HTMLInputElement
+                temp.checked = false
+            }
+    }
+
+    async ShowAddUserModal()
+    {
+        this.clientTeamMappingList = await this.connectionService.getItems(api_endpoints.getAllClientTeamMappings) as iClientTeamMapping[]
+        ($('#AddUserModal') as any).modal('show')
+        
+    }
+
+
 }

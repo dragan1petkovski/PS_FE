@@ -12,3 +12,11 @@ export interface iPostTeam
     clientid: string | null | undefined,
     userids: string[] | null | undefined
 }
+
+export interface iClientTeamMapping
+{
+    teamname: string,
+    teamid: string,
+    clientname: string,
+    clientid: string
+}

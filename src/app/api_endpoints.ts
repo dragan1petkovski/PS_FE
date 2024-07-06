@@ -1,3 +1,5 @@
+//export const session_id ="120B130E-CB91-480B-9C63-F9DF765CE3E0"
+
 export const session_id ="00B9F0F9-7B89-40A4-9CEA-29C0F6396ECA" //user1
 export const admin_session_id = ''
 
@@ -34,6 +36,7 @@ export class api_endpoints
 
     static readonly AddClient = "api/client/AddClient"
     static readonly AddTeam = "api/team/AddTeam"
+    static readonly AddUser = "api/user/AddUser"
 
 }
 
