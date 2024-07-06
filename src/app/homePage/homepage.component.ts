@@ -71,7 +71,6 @@ export class HomepageComponent {
   {
     let json = await this.connectionService.getItems(url)
     let jsonData = json as iCertificate[]
-    console.log(jsonData)
     return jsonData
   }
 
@@ -92,8 +91,15 @@ export class HomepageComponent {
     else if (this.selectTab.privateTab)
       {
         this.navMenuBodyItems = await this.GetPersonalTabFoders(api_endpoints.getPersonalCredentialsFoldersByUserID.concat(session_id))
-        console.log(this.navMenuBodyItems)
-        this.workAreaBodyItems = await this.GetPersoanlCredentials(api_endpoints.getPersonalCredentialsFolderByFolderID.concat(session_id,'/',this.navMenuBodyItems[0].id))
+        if(this.navMenuBodyItems[0] != null)
+        {
+          this.workAreaBodyItems = await this.GetPersoanlCredentials(api_endpoints.getPersonalCredentialsFolderByFolderID.concat(session_id,'/',this.navMenuBodyItems[0].id))
+        }
+        else
+        {
+          this.workAreaBodyItems = await this.GetPersoanlCredentials(api_endpoints.getPersonalCredentialsFolderByFolderID.concat(session_id))
+        }
+
       }
   }
 
