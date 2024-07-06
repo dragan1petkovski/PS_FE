@@ -12,7 +12,8 @@ export class api_endpoints
     static readonly setCredentials = "api/Credential/SetCredential/"
     static readonly deleteCredential = "api/Credential/DeleteCredential/"
 
-    static readonly getPasswordByID = "api/Password/getPasswordByID/"
+    static readonly GetCredentialPasswordById = "api/Password/GetCredentialPasswordById/"
+    static readonly GetCertificatePasswordById = "api/Password/GetCertificatePasswordById/"
 
     static readonly getAllClientTeamMappingsByUserId = "api/Team/GetAllClientTeamMappingsByUserId/"
     static readonly getAllClientTeamMappings = "api/Team/GetAllClientTeamMappings/"

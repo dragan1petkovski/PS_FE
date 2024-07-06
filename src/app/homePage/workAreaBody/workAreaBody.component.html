@@ -21,8 +21,8 @@
                 <td style="background-color: white !important;">{{item.note}}</td>
                 <td style="background-color: white !important;" class="nospaceincell">
                     <p id={{item.id}} class="d-inline">{{item.password}}</p>&nbsp;
-                    <i class="bi bi-copy ml-1" (click) = "CopyPassword(item.id)"></i>&nbsp;
-                    <i type="cred" id={{item.id}}-eye class="bi bi-eye" (click) = "ShowPassword(item.id)"></i>
+                    <i class="bi bi-copy ml-1" (click) = "CopyPassword('cred',item.id)"></i>&nbsp;
+                    <i type="cred" id={{item.id}}-eye class="bi bi-eye" (click) = "ShowPassword('cred',item.id)"></i>
                 </td>
                 <td class="nospaceincell"  style="background-color: white !important;">
                     <i class="bi bi-pencil"></i>&nbsp;
@@ -47,13 +47,13 @@
     <tbody>
         <tr *ngFor="let item of items" style="background-color: #15dffd !important;">
             <td style="background-color: white !important;">{{item.name}}</td>
-            <td style="background-color: white !important;">{{item.issuedTo}}</td>
-            <td style="background-color: white !important;">{{item.issuedBy}}</td>
-            <td style="background-color: white !important;">{{item.expirationDate}}</td>
+            <td style="background-color: white !important;">{{item.issuedto}}</td>
+            <td style="background-color: white !important;">{{item.issuedby}}</td>
+            <td style="background-color: white !important;">{{item.expirationdate}}</td>
             <td class="nospaceincell" style="background-color: white !important;">
                 <p id={{item.id}} class="d-inline">{{item.password}}</p>&nbsp;
-                <i class="bi bi-copy ml-1"  (click) = "CopyPassword(item.id)"></i>&nbsp;
-                <i type="cert" id={{item.id}}-eye class="bi bi-eye" (click) = "ShowPassword(item.id)"></i>
+                <i class="bi bi-copy ml-1"  (click) = "CopyPassword('cert',item.id)"></i>&nbsp;
+                <i type="cert" id={{item.id}}-eye class="bi bi-eye" (click) = "ShowPassword('cert',item.id)"></i>
             </td>
            
             <td class="nospaceincell" style="background-color: white !important;">
@@ -84,8 +84,8 @@
                 <td style="background-color: white !important;">{{item.note}}</td>
                 <td class="nospaceincell" style="background-color: white !important;">
                     <p id={{item.id}} class="d-inline">{{item.password}}</p>&nbsp;
-                    <i class="bi bi-copy ml-1" (click) = "CopyPassword(item.id)"></i>&nbsp;
-                    <i type="cred" id={{item.id}}-eye class="bi bi-eye" (click) = "ShowPassword(item.id)"></i>
+                    <i class="bi bi-copy ml-1" (click) = "CopyPassword('cred',item.id)"></i>&nbsp;
+                    <i type="cred" id={{item.id}}-eye class="bi bi-eye" (click) = "ShowPassword('cred',item.id)"></i>
                 </td>
                 <td class="nospaceincell" style="background-color: white !important;">
                     <i class="bi bi-pencil"></i>&nbsp;

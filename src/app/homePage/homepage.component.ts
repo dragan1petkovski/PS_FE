@@ -71,6 +71,7 @@ export class HomepageComponent {
   {
     let json = await this.connectionService.getItems(url)
     let jsonData = json as iCertificate[]
+    console.log(jsonData)
     return jsonData
   }
 
@@ -127,9 +128,9 @@ export class HomepageComponent {
     let json = await this.connectionService.getItems(url)
     let jsonData = json as iClientOrganization[]
     for(let client of jsonData)
-      {
-        client.certificateURL = api_endpoints.getCertificateByClientID.concat(session_id,'/',client.id)
-      }
+    {
+      client.certificateURL = api_endpoints.getCertificateByClientID.concat(session_id,'/',client.id)
+    }
     return jsonData
 
   }

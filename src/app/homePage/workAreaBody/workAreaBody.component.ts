@@ -23,7 +23,7 @@ export class WorkAreaBody {
 
 
     constructor(private connectionService: ConnectionService) {}
-    async ShowPassword(id: string)
+    async ShowPassword(type:string, id: string)
     {
         const eye = document.getElementById(`${id}-eye`)
         if(eye != null)
@@ -37,7 +37,7 @@ export class WorkAreaBody {
                     }
                     else if(eye.className === "bi bi-eye")
                     {
-                        this.ShowPasswordString(id)
+                        this.ShowPasswordString(type,id)
                         eye.className = "bi bi-eye-slash"
                         this.ShowpasswordTimer(eye,id)
                     }
@@ -51,7 +51,7 @@ export class WorkAreaBody {
                     }
                     else if(eye.className === "bi bi-eye")
                     {
-                        this.ShowPasswordString(id)
+                        this.ShowPasswordString(type,id)
                         eye.className = "bi bi-eye-slash"
                         this.ShowpasswordTimer(eye,id)
                     }
@@ -69,22 +69,40 @@ export class WorkAreaBody {
             }
        
     }
-    async ShowPasswordString(id: string)
+    async ShowPasswordString(type: string, id: string)
     {
         
-        let t = await this.GetPasswordById(id)
-        let element = document.getElementById(id)
-        if(element != undefined)
-            {
-                element.innerText = t
-            }
+        if(type === 'cert')
+        {
+            let t = await this.GetCertificatePasswordById(id)
+            let element = document.getElementById(id)
+            if(element != undefined)
+                {
+                    element.innerText = t
+                }
+        }
+        else if(type === 'cred')
+        {
+            let t = await this.GetCredentialPasswordById(id)
+            let element = document.getElementById(id)
+            if(element != undefined)
+                {
+                    element.innerText = t
+                }
+        }
+
 
     }
 
-    async GetPasswordById(id:string) {
-       const password = await this.connectionService.getItems(api_endpoints.getPasswordByID.concat(id))
+    async GetCredentialPasswordById(id:string) {
+       const password = await this.connectionService.getItems(api_endpoints.GetCredentialPasswordById.concat(id))
        return password.password
     }
+
+    async GetCertificatePasswordById(id:string) {
+        const password = await this.connectionService.getItems(api_endpoints.GetCertificatePasswordById.concat(id))
+        return password.password
+     }
 
     async ShowpasswordTimer(element:HTMLElement, id: string)
     {
@@ -96,10 +114,19 @@ export class WorkAreaBody {
             ,10000))
     }
 
-    async CopyPassword(id:string)
+    async CopyPassword(type:string, id:string)
     {
-        const password = await this.GetPasswordById(id)
-        navigator.clipboard.writeText(password.trim())   
+        if(type === "cert")
+        {
+            const password = await this.GetCertificatePasswordById(id)
+            navigator.clipboard.writeText(password.trim()) 
+        }
+        else if(type === "cred")
+        {
+            const password = await this.GetCredentialPasswordById(id)
+            navigator.clipboard.writeText(password.trim()) 
+        }
+  
     }
 
     DeleteCredentialLink(teamid:string,credentialid:string)
