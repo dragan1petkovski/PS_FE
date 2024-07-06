@@ -11,7 +11,9 @@ import { api_endpoints, session_id } from "../../api_endpoints";
 import { iTeamDTOMini } from "../../interfaces/DTOModel/teamDTOMini";
 import { iPOstStatus } from "../../interfaces/postStatus";
 import { iPersonalFolder, iPersonalFolderPost } from "../../interfaces/DTOModel/PersonalFolderDTO";
-
+import { iClientTeamMapping } from "../../interfaces/Team"
+import { iPartUser } from "../../interfaces/user";
+import { iPostGiveCredential } from "../../interfaces/GiveCredentials";
 
 @Component({
     selector: 'workAreaHeader',
@@ -39,8 +41,26 @@ export class WorkAreaHeader {
         addPersonalFolder: new FormControl('',[Validators.required])
     })
     
+    allPartUserList: iPartUser[] = []
+    clientTeamMappingList: iClientTeamMapping[] = []
+    giveCredentialInternallyForm =new FormGroup({
+        domain: new FormControl('',[Validators.required]),
+        username: new FormControl('',[Validators.required]),
+        password: new FormControl('',[Validators.required]),
+        remote: new FormControl(''),
+        email: new FormControl(''),
+        note: new FormControl(''),
+    })
 
-    giveCredential =new FormGroup({})
+    giveCredentialExternallyForm =new FormGroup({
+        domain: new FormControl('',[Validators.required]),
+        username: new FormControl('',[Validators.required]),
+        password: new FormControl('',[Validators.required]),
+        remote: new FormControl(''),
+        email: new FormControl(''),
+        note: new FormControl(''),
+    })
+
     credentialGiveCheckbox:boolean = false
 
     constructor(private connectionService: ConnectionService) {}
@@ -159,12 +179,14 @@ export class WorkAreaHeader {
         {
             this.addCredentialForm.reset()
             this.UncheckAllAddCredentialCheckboxes()
+            this.uncheckGiveCredentialcheckbox()
             return "OK"
         }
         else if(postStatus === "KO")
         {
             this.addCredentialForm.reset()
             this.UncheckAllAddCredentialCheckboxes()
+            this.uncheckGiveCredentialcheckbox()
             return "KO"
         }
         return ""
@@ -185,5 +207,70 @@ export class WorkAreaHeader {
     {
         let postPersonalFolder: iPersonalFolderPost =  {name: this.addPersonalFolderFormGroup.controls.addPersonalFolder.value}
         this.responseStatus = await this.connectionService.postItem(api_endpoints.setPersonalFolderByUserID.concat(session_id),postPersonalFolder)
+    }
+
+
+    async GiveCredentialInternallyData()
+    {
+        this.clientTeamMappingList = await this.connectionService.getItems(api_endpoints.getAllClientTeamMappings) as iClientTeamMapping[]
+        this.allPartUserList =  await this.connectionService.getItems(api_endpoints.GetAllPartUsers) as iPartUser[]
+    }
+
+    async ShowGiveCredentialInternallyModal()
+    {
+        await this.GiveCredentialInternallyData();
+        ($('#GiveCredentialInternally') as any).modal('show')
+    }
+
+    uncheckGiveCredentialcheckbox()
+    {
+        let usercheckboxes = document.getElementsByClassName("gc_usercheckbox") as HTMLCollectionOf<HTMLInputElement>
+        let teamclientmappingcheckboxes = document.getElementsByClassName("gc_teamclientmappingcheckbox") as HTMLCollectionOf<HTMLInputElement>
+        for(let usercheckbox of usercheckboxes)
+        {
+            let temp = usercheckbox as HTMLInputElement
+            temp.checked = false
+        }
+        for(let teamclientmapping of teamclientmappingcheckboxes)
+        {
+            let temp = teamclientmapping as HTMLInputElement
+            temp.checked = false
+        }
+    }
+
+    async GiveCredentialInternally()
+    {
+        let postGiveCredential: iPostGiveCredential = {
+            domain: this.giveCredentialInternallyForm.value.domain,
+            username: this.giveCredentialInternallyForm.value.username,
+            password: this.giveCredentialInternallyForm.value.password,
+            email: this.giveCredentialInternallyForm.value.email,
+            remote: this.giveCredentialInternallyForm.value.remote,
+            note: this.giveCredentialInternallyForm.value.note,
+            teamids: [],
+            userids: []
+        }
+
+        let usercheckboxes = document.getElementsByClassName("gc_usercheckbox") as HTMLCollectionOf<HTMLInputElement>
+        let teamclientmappingcheckboxes = document.getElementsByClassName("gc_teamclientmappingcheckbox") as HTMLCollectionOf<HTMLInputElement>
+        for(let usercheckbox of usercheckboxes)
+        {
+            let temp = usercheckbox as HTMLInputElement
+            if(temp.checked)
+            {
+                postGiveCredential.userids?.push(temp.value)
+            }
+        }
+        for(let teamclientmapping of teamclientmappingcheckboxes)
+        {
+            let temp = teamclientmapping as HTMLInputElement
+            if(temp.checked)
+            {
+                postGiveCredential.teamids?.push(temp.value)
+            }
+        }
+
+        let postStatus = (await this.connectionService.postItem(api_endpoints.giveCredential,postGiveCredential)) as iPOstStatus
+        this.responseStatus = postStatus.status
     }
 }

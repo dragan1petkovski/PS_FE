@@ -6,7 +6,8 @@
             {
                 <button class="btn btn-ns" (click) = "OpenModalWithData('AddCredential','teamList')">Add credential</button>&nbsp;
                 <button class="btn btn-ns" data-bs-toggle="modal" data-bs-target="#PasswordGenerator">Password Generator</button>&nbsp;
-                <button class="btn btn-ns" data-bs-toggle="modal" data-bs-target="#GiveCredential">Give Credential</button>
+                <button class="btn btn-ns" (click) = "ShowGiveCredentialInternallyModal()">Give Credential Internally</button>&nbsp;
+                <button class="btn btn-ns" data-bs-toggle="modal" data-bs-target="#GiveCredentialExternally">Give Credential Externally</button>
             }
             @else if(selectTab.privateTab)
             {
@@ -212,26 +213,40 @@
 </div> 
 </div>
 
-<!-- Give Credential -->
+<!-- Give Credential Internally-->
 <div
 class="modal"
 tabindex="-1"
 role="dialog"
 style='display:none'
-id="GiveCredential"> 
+id="GiveCredentialInternally"> 
 <div class="modal-dialog modal-lg" role="document"> 
   <div class="modal-content"> 
-    <div class="modal-header"> 
-      <h4 class="modal-title">Give Credential</h4> 
+    <div class="modal-header btn-ns"> 
+      <h4 class="modal-title">Give Credential Internally</h4> 
     </div> 
     <div class="modal-body"> 
-      <form [formGroup]="giveCredential">
+
+        @if(ResetFormGroup(responseStatus) === "OK")
+        {
+            <div class="alert alert-success" role="alert">
+                Successfully giving credential
+              </div>
+        }
+        @else if (ResetFormGroup(responseStatus) === "KO")
+        {
+            <div class="alert alert-danger" role="alert">
+                Failed to give credential
+            </div>
+        }
+
+      <form [formGroup]="giveCredentialInternallyForm">
           <div class="row m-2">
               <div class="col-4 text-end">
                   <p>Domain Name</p>
               </div>
               <div class="col d-flex justify-content-center p-0">
-                  <input formControlName="domain" class="w-100 form-control" type="text" id="domain" required minlength="8">
+                  <input formControlName="domain" class="w-100 form-control" type="text" id="domain">
               </div>
           </div>
 
@@ -250,7 +265,7 @@ id="GiveCredential">
                   <p>Password</p>
               </div>
               <div class="col d-flex justify-content-center p-0">
-                  <input formControlName="username" class="w-100 form-control" type="password">
+                  <input formControlName="password" class="w-100 form-control" type="password">
               </div>
                   
           </div>
@@ -259,7 +274,7 @@ id="GiveCredential">
                   <p>E-mail</p>
               </div>
               <div class="col d-flex justify-content-center p-0">
-                  <input formControlName="username" class="w-100 form-control" type="email" placeholder="mail@example.com">
+                  <input formControlName="email" class="w-100 form-control" type="email" placeholder="mail@example.com">
               </div>
                   
           </div>
@@ -268,10 +283,146 @@ id="GiveCredential">
                   <p>Remote Location</p>
               </div>
               <div class="col d-flex justify-content-center p-0">
+                  <input formControlName="remote" class="w-100 form-control" type="text">
+              </div>
+                  
+          </div>
+
+          <div class="row m-2">
+            <div class="col-4 text-end">
+                <p>Note</p>
+            </div>
+            <div class="col p-0">
+                <textarea class="form-control" formControlName="note"></textarea>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col">
+                <table>
+                    <thead>
+                        <tr>
+                            <td>Team Name</td>
+                            <td colspan="2">Client Name</td>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr  *ngFor=" let team of clientTeamMappingList">
+                            <td style=" background-color: white !important;">{{team.teamname}}</td>
+                            <td style=" background-color: white !important;">{{team.clientname}}</td>
+                            <td style=" background-color: white !important;" class="nospaceincell">
+                                <input type="checkbox" value={{team.teamid}} class="gc_teamclientmappingcheckbox">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+            <div class="col">
+                <table>
+                    <thead>
+                        <tr>
+                            <td>Fullname</td>
+                            <td colspan="2">Username</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let user of allPartUserList">
+                            <td style=" background-color: white !important;">{{user.fullname}}</td>
+                            <td style=" background-color: white !important;">{{user.username}}</td>
+                            <td class="nospaceincell" style=" background-color: white !important;" >
+                                <input type="checkbox" value={{user.id}} class="gc_usercheckbox">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+          </div>
+
+      </form>
+
+    </div> 
+    <div class="modal-footer"> 
+        <input type="submit" value="Give Credential" class="btn btn-ns" [disabled]="!giveCredentialInternallyForm.valid" (click) = "GiveCredentialInternally()">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
+            Close 
+        </button> 
+    </div> 
+  </div> 
+</div> 
+</div>
+
+
+<!-- Give Credential Externally-->
+<div
+class="modal"
+tabindex="-1"
+role="dialog"
+style='display:none'
+id="GiveCredentialExternally"> 
+<div class="modal-dialog modal-lg" role="document"> 
+  <div class="modal-content"> 
+    <div class="modal-header"> 
+      <h4 class="modal-title">Give Credential Externally</h4> 
+    </div> 
+    <div class="modal-body"> 
+      <form [formGroup]="giveCredentialExternallyForm">
+          <div class="row m-2">
+              <div class="col-4 text-end">
+                  <p>Domain Name</p>
+              </div>
+              <div class="col d-flex justify-content-center p-0">
+                  <input formControlName="domain" class="w-100 form-control" type="text" id="domain" required minlength="8">
+              </div>
+          </div>
+
+          <div class="row m-2">
+              <div class="col-4 text-end">
+                  <p>Username</p>
+              </div>
+              <div class="col d-flex justify-content-center p-0">
                   <input formControlName="username" class="w-100 form-control" type="text">
               </div>
                   
           </div>
+          <div class="row m-2">
+              <div class="col-4 text-end">
+                  <p>Password</p>
+              </div>
+              <div class="col d-flex justify-content-center p-0">
+                  <input formControlName="password" class="w-100 form-control" type="password">
+              </div>
+                  
+          </div>
+          <div class="row m-2">
+              <div class="col-4 text-end">
+                  <p>E-mail</p>
+              </div>
+              <div class="col d-flex justify-content-center p-0">
+                  <input formControlName="email" class="w-100 form-control" type="email" placeholder="mail@example.com">
+              </div>
+                  
+          </div>
+          <div class="row m-2">
+              <div class="col-4 text-end ">
+                  <p>Remote Location</p>
+              </div>
+              <div class="col d-flex justify-content-center p-0">
+                  <input formControlName="remote" class="w-100 form-control" type="text">
+              </div>
+                  
+          </div>
+
+          <div class="row m-2">
+            <div class="col-4 text-end">
+                <p>Note</p>
+            </div>
+            <div class="col p-0">
+                <textarea class="form-control" formControlName="note"></textarea>
+            </div>
+          </div>
+          
       </form>
 
     </div> 
@@ -283,6 +434,8 @@ id="GiveCredential">
   </div> 
 </div> 
 </div>
+
+
 }
 
 @else if(selectTab.privateTab)
