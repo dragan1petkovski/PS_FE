@@ -89,50 +89,18 @@
                 </td>
                 <td class="nospaceincell" style="background-color: white !important;">
                     <i class="bi bi-pencil"></i>&nbsp;
-                    <i class="bi bi-trash"></i> &nbsp;
+                    <i class="bi bi-trash" (click) = "OpenDeleteCredentialModal('DeleteCredential',item.id,item.username,item.domain, item.teamid)"></i> &nbsp;
                 </td>
             </tr>
         </tbody>
     }
     </table>
 </div>
+
+
 @if(selectTab.credentialsTab)
 {
-    <div
-    class="modal"
-    tabindex="-1"
-    role="dialog"
-    style='display:none'
-    id="DeleteCredential"> 
-    <div class="modal-dialog" role="document"> 
-      <div class="modal-content"> 
-        <div class="modal-header"> 
-          <h4 class="modal-title">Delete Credential</h4> 
-        </div> 
-        <div class="modal-body"> 
-            @if(responseStatus === "OK")
-            {
-                <div class="alert alert-success" role="alert">
-                    Credential successfully added
-                  </div>
-            }
-            @else if (responseStatus === "KO")
-            {
-                <div class="alert alert-danger" role="alert">
-                    Failed to add credential
-                </div>
-            }
-            Do you want to delete {{deleteModalName}}?
-        </div> 
-        <div class="modal-footer"> 
-            <button type="button" class="btn btn-ns" (click) = "DeleteCredential()">Delete credential </button>
-            <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
-              Close 
-            </button> 
-        </div> 
-      </div> 
-    </div> 
-    </div>
+
 
     <div
     class="modal"
@@ -166,3 +134,39 @@
     </div> 
     </div>
 }
+
+<div
+class="modal"
+tabindex="-1"
+role="dialog"
+style='display:none'
+id="DeleteCredential"> 
+<div class="modal-dialog" role="document"> 
+  <div class="modal-content"> 
+    <div class="modal-header"> 
+      <h4 class="modal-title">Delete Credential</h4> 
+    </div> 
+    <div class="modal-body"> 
+        @if(responseStatus === "OK")
+        {
+            <div class="alert alert-success" role="alert">
+                Credential successfully added
+              </div>
+        }
+        @else if (responseStatus === "KO")
+        {
+            <div class="alert alert-danger" role="alert">
+                Failed to add credential
+            </div>
+        }
+        Do you want to delete {{deleteModalName}}?
+    </div> 
+    <div class="modal-footer"> 
+        <button type="button" class="btn btn-ns" (click) = "DeleteCredential()">Delete credential </button>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
+          Close 
+        </button> 
+    </div> 
+  </div> 
+</div> 
+</div>

@@ -14,7 +14,8 @@
                 <button class="btn btn-ns" data-bs-toggle="modal" data-bs-target="#AddFolder">Add Folder</button>&nbsp;
                 <button class="btn btn-ns" (click) = "OpenModalWithData('AddPersonalCredential','personalFolderList')">Add credential</button>&nbsp;
                 <button class="btn btn-ns" data-bs-toggle="modal" data-bs-target="#PasswordGenerator">Password Generator</button>&nbsp;
-                <button class="btn btn-ns" data-bs-toggle="modal" data-bs-target="#GiveCredential">Give Credential</button>
+                <button class="btn btn-ns" (click) = "ShowGiveCredentialInternallyModal()">Give Credential Internally</button>&nbsp;
+                <button class="btn btn-ns" data-bs-toggle="modal" data-bs-target="#GiveCredentialExternally">Give Credential Externally</button>
                 
             }
             @else if(selectTab.certificatesTab)
@@ -38,7 +39,7 @@
   <div class="modal" tabindex="-1" role="dialog" id="AddCredential"> 
     <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document"> 
       <div class="modal-content"> 
-        <div class="modal-header"> 
+        <div class="modal-header btn-ns"> 
           <h4 class="modal-title">Add Credential</h4> 
         </div> 
         <div class="modal-body"> 
@@ -111,13 +112,24 @@
                   </div>
                       
               </div>
-            <div class="row m-2" *ngFor="let item of itemList">
-                <div class="col-4 text-end ">
-                    <p>{{item.clientname +" : "+item.teamname}}</p>
-                </div>
-                <div class="col d-flex justify-content-start p-0">
-                    <input type="checkbox"  name={{item.teamname}} class="teamList" id={{item.teamid}} value={{item.clientid}}>
-                </div>
+            <div class="row m-2" >
+                <table>
+                    <thead>
+                        <tr>
+                            <td>Client Name</td>
+                            <td colspan="2">Team Name</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of itemList">
+                            <td style=" background-color: white !important;">{{item.clientname}}</td>
+                            <td style=" background-color: white !important;">{{item.teamname}}</td>
+                            <td class="nospaceincell" style=" background-color: white !important;" >
+                                <input type="checkbox" class="teamList" value='{"teamid": "{{item.teamid}}", "clientid": "{{item.clientid}}"}'>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
           </form>
     
@@ -132,86 +144,185 @@
     </div> 
   </div>
 
-<!-- Password Generator -->
-<div class="modal" tabindex="-1" role="dialog" id="PasswordGenerator"> 
-<div class="modal-dialog" role="document"> 
-  <div class="modal-content"> 
-    <div class="modal-header"> 
-      <h4 class="modal-title">PasswordGenerator</h4> 
+
+}
+
+@else if(selectTab.privateTab)
+{
+
+<!-- Add Folder -->
+<div class="modal" tabindex="-1" role="dialog" id="AddFolder"> 
+    <div class="modal-dialog modal-lg" role="document"> 
+      <div class="modal-content"> 
+        <div class="modal-header btn-ns"> 
+          <h4 class="modal-title">Add Folder</h4> 
+        </div> 
+        <div class="modal-body"> 
+            <form id="addPersonalFolder" [formGroup] = "addPersonalFolderFormGroup">
+                
+                <div class="row">
+                    <div class="col-3 text-end">
+                        Enter folder name
+                    </div>
+                    <div class="col-9">
+                        <input type="text" formControlName = "addPersonalFolder" class="form-control">
+                    </div>
+                </div>
+            </form>
+    
+        </div> 
+        <div class="modal-footer"> 
+            <input type="submit" from="addPersonalFolder" class="btn btn-ns" value="Add Folder" [disabled]="!addPersonalFolderFormGroup.valid" (click) = "AddPersonalFolderByUserId()">
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
+            Close 
+          </button> 
+        </div> 
+      </div> 
     </div> 
-    <div class="modal-body">
-            <div class="row">
-                <div class="col">
-                    <p>Enter length of password</p>
+    </div>
+
+      <!-- Add Credential -->
+  <div class="modal" tabindex="-1" role="dialog" id="AddPersonalCredential"> 
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document"> 
+      <div class="modal-content"> 
+        <div class="modal-header btn-ns"> 
+          <h4 class="modal-title">Add Credential</h4> 
+        </div> 
+        <div class="modal-body"> 
+            @if(ResetFormGroup(responseStatus) === "OK")
+            {
+                <div class="alert alert-success" role="alert">
+                    Credential successfully added
+                  </div>
+            }
+            @else if (ResetFormGroup(responseStatus) === "KO")
+            {
+                <div class="alert alert-danger" role="alert">
+                    Failed to add credential
                 </div>
-                <div class="col">
-                    <input type="number" id="passwordLength">
+            }
+
+          <form [formGroup]="addCredentialForm">
+            <div class="row m-2">
+                <div class="col-4 text-end">
+                    <p>Domain Name <span *ngIf="addCredentialForm.controls.domain.invalid" class="text-danger">*</span></p>
                 </div>
-            </div>
-    
-            <div class="row">
-                <div class="col">
-                    <p>numbers</p>
-                </div>
-                <div class="col">
-                    <input type="checkbox" id="Numbers">
-                </div>
-            </div>
-    
-            <div class="row">
-                <div class="col">
-                    <p>Upper Case</p>
-                </div>
-                <div class="col">
-                    <input type="checkbox" id="UpperCase">
-                </div>
-            </div>
-    
-            <div class="row">
-                <div class="col">
-                    <p>Lower Case</p>
-                </div>
-                <div class="col">
-                    <input type="checkbox" id="LowerCase">
-                </div>
-            </div>
-    
-            <div class="row">
-                <div class="col">
-                    <p>special characters</p>
-                </div>
-                <div class="col">
-                    <input type="checkbox" id="SpecialCharacter">
-                </div>
-            </div>
-    
-            <div class="row">
-                <div class="col">
-                    <p>Brackets</p>
-                </div>
-                <div class="col">
-                    <input type="checkbox" id="Brackets">
-                </div>
-            </div>
-    
-            <div class="row">
-                <div class="col">
-                    <input type="submit" value="Generate Password" (click) = "GeneratedPassword()">
-                </div>
-                <div class="col">
-                    <p id="passwordString"></p>
+                <div class="col d-flex justify-content-center p-0">
+                    <input formControlName="domain" class="w-100 form-control" type="text">
                 </div>
             </div>
 
+            <div class="row m-2">
+                <div class="col-4 text-end">
+                    <p>Username <span *ngIf="addCredentialForm.controls.username.invalid" class="text-danger">*</span></p>
+                </div>
+                <div class="col d-flex justify-content-center p-0">
+                    <input formControlName="username" class="w-100 form-control" type="text">
+                </div>
+                    
+            </div>
+            <div class="row m-2">
+                <div class="col-4 text-end">
+                    <p>Password <span *ngIf="addCredentialForm.controls.password.invalid" class="text-danger">*</span></p>
+                </div>
+                <div class="col d-flex justify-content-center p-0">
+                    <input formControlName="password" class="w-100 form-control" type="password">
+                </div>
+                    
+            </div>
+
+            <div class="row m-2">
+                <div class="col-4 text-end">
+                    <p>E-mail</p>
+                </div>
+                <div class="col d-flex justify-content-center p-0">
+                    <input formControlName="email" class="w-100 form-control" type="email" placeholder="mail@example.com">
+                </div>
+                    
+            </div>
+            <div class="row m-2">
+                <div class="col-4 text-end ">
+                    <p>Remote</p>
+                </div>
+                <div class="col d-flex justify-content-center p-0">
+                    <input formControlName="remote" class="w-100 form-control" type="text" placeholder="Enter username">
+                </div>
+                    
+            </div>
+            <div class="row m-2">
+                <div class="col-4 text-end ">
+                    <p>Note</p>
+                </div>
+                <div class="col d-flex justify-content-center p-0">
+                    <input formControlName="note" class="w-100 form-control" type="text" placeholder="Enter username">
+                </div>
+                    
+            </div>
+        
+            <div class="row m-2" *ngFor="let item of itemList">
+                <div class="col-4 text-end ">
+                    <p>{{item.name}}</p>
+                </div>
+                <div class="col d-flex justify-content-start p-0">
+                    <input type="radio"  name="personalFolder" class="persoanlFolderList" id={{item.id}} value={{item.id}}>
+                </div>
+            </div>
+          </form>
+    
+        </div> 
+        <div class="modal-footer"> 
+          <input type="submit" class="btn btn-ns"[disabled]="!addCredentialForm.valid" value="Add Credential" (click) = "AddPersonalCredential()">
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
+            Close 
+          </button> 
+        </div> 
+      </div> 
     </div> 
-    <div class="modal-footer"> 
-      <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
-        Close 
-      </button> 
+  </div>
+
+}
+
+@else if(selectTab.certificatesTab)
+{
+<!-- Upload Certificates -->
+<div class="modal" tabindex="-1" role="dialog" id="UploadCertificate"> 
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document"> 
+      <div class="modal-content"> 
+        <div class="modal-header btn-ns"> 
+          <h4 class="modal-title">Upload Certificate</h4> 
+        </div> 
+        <div class="modal-body"> 
+            <form id="_uploadCertificate">
+                <div class="row">
+                    <div class="col-3 text-end">
+                        Uplaod Certificate
+                    </div>
+                    <div class="col-9">
+                        <input type="file" class="form-control" id="uploadcertificate">
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-3 text-end">
+                        Certificate Password
+                    </div>
+                    <div class="col-9">
+                        <input type="password" class="form-control" id="certificatepassword">
+                    </div>
+                </div>
+            </form>
+    
+        </div> 
+        <div class="modal-footer"> 
+            <input type="submit" class="btn btn-ns" value="Upload Certificate">
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
+              Close 
+            </button> 
+        </div> 
+      </div> 
     </div> 
-  </div> 
-</div> 
 </div>
+}
+
 
 <!-- Give Credential Internally-->
 <div
@@ -220,7 +331,7 @@ tabindex="-1"
 role="dialog"
 style='display:none'
 id="GiveCredentialInternally"> 
-<div class="modal-dialog modal-lg" role="document"> 
+<div class="modal-dialog modal-lg modal-dialog-scrollable" role="document"> 
   <div class="modal-content"> 
     <div class="modal-header btn-ns"> 
       <h4 class="modal-title">Give Credential Internally</h4> 
@@ -363,7 +474,7 @@ style='display:none'
 id="GiveCredentialExternally"> 
 <div class="modal-dialog modal-lg" role="document"> 
   <div class="modal-content"> 
-    <div class="modal-header"> 
+    <div class="modal-header btn-ns"> 
       <h4 class="modal-title">Give Credential Externally</h4> 
     </div> 
     <div class="modal-body"> 
@@ -435,274 +546,80 @@ id="GiveCredentialExternally">
 </div> 
 </div>
 
-
-}
-
-@else if(selectTab.privateTab)
-{
-
-<!-- Add Folder -->
-<div class="modal" tabindex="-1" role="dialog" id="AddFolder"> 
-    <div class="modal-dialog modal-lg" role="document"> 
-      <div class="modal-content"> 
-        <div class="modal-header"> 
-          <h4 class="modal-title">Add Folder</h4> 
-        </div> 
-        <div class="modal-body"> 
-            <form id="addPersonalFolder" [formGroup] = "addPersonalFolderFormGroup">
-                
-                <div class="row">
-                    <div class="col-3 text-end">
-                        Enter folder name
-                    </div>
-                    <div class="col-9">
-                        <input type="text" formControlName = "addPersonalFolder" class="form-control">
-                    </div>
-                </div>
-            </form>
-    
-        </div> 
-        <div class="modal-footer"> 
-            <input type="submit" from="addPersonalFolder" class="btn btn-ns" value="Add Folder" [disabled]="!addPersonalFolderFormGroup.valid" (click) = "AddPersonalFolderByUserId()">
-          <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
-            Close 
-          </button> 
-        </div> 
-      </div> 
-    </div> 
-    </div>
-
-      <!-- Add Credential -->
-  <div class="modal" tabindex="-1" role="dialog" id="AddPersonalCredential"> 
-    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document"> 
-      <div class="modal-content"> 
-        <div class="modal-header"> 
-          <h4 class="modal-title">Add Credential</h4> 
-        </div> 
-        <div class="modal-body"> 
-            @if(ResetFormGroup(responseStatus) === "OK")
-            {
-                <div class="alert alert-success" role="alert">
-                    Credential successfully added
-                  </div>
-            }
-            @else if (ResetFormGroup(responseStatus) === "KO")
-            {
-                <div class="alert alert-danger" role="alert">
-                    Failed to add credential
-                </div>
-            }
-
-          <form [formGroup]="addCredentialForm">
-            <div class="row m-2">
-                <div class="col-4 text-end">
-                    <p>Domain Name <span *ngIf="addCredentialForm.controls.domain.invalid" class="text-danger">*</span></p>
-                </div>
-                <div class="col d-flex justify-content-center p-0">
-                    <input formControlName="domain" class="w-100 form-control" type="text">
-                </div>
-            </div>
-
-            <div class="row m-2">
-                <div class="col-4 text-end">
-                    <p>Username <span *ngIf="addCredentialForm.controls.username.invalid" class="text-danger">*</span></p>
-                </div>
-                <div class="col d-flex justify-content-center p-0">
-                    <input formControlName="username" class="w-100 form-control" type="text">
-                </div>
-                    
-            </div>
-            <div class="row m-2">
-                <div class="col-4 text-end">
-                    <p>Password <span *ngIf="addCredentialForm.controls.password.invalid" class="text-danger">*</span></p>
-                </div>
-                <div class="col d-flex justify-content-center p-0">
-                    <input formControlName="password" class="w-100 form-control" type="password">
-                </div>
-                    
-            </div>
-
-            <div class="row m-2">
-                <div class="col-4 text-end">
-                    <p>E-mail</p>
-                </div>
-                <div class="col d-flex justify-content-center p-0">
-                    <input formControlName="email" class="w-100 form-control" type="email" placeholder="mail@example.com">
-                </div>
-                    
-            </div>
-            <div class="row m-2">
-                <div class="col-4 text-end ">
-                    <p>Remote</p>
-                </div>
-                <div class="col d-flex justify-content-center p-0">
-                    <input formControlName="remote" class="w-100 form-control" type="text" placeholder="Enter username">
-                </div>
-                    
-            </div>
-            <div class="row m-2">
-                <div class="col-4 text-end ">
-                    <p>Note</p>
-                </div>
-                <div class="col d-flex justify-content-center p-0">
-                    <input formControlName="note" class="w-100 form-control" type="text" placeholder="Enter username">
-                </div>
-                    
-            </div>
-        
-            <div class="row m-2" *ngFor="let item of itemList">
-                <div class="col-4 text-end ">
-                    <p>{{item.name}}</p>
-                </div>
-                <div class="col d-flex justify-content-start p-0">
-                    <input type="radio"  name="personalFolder" class="persoanlFolderList" id={{item.id}} value={{item.id}}>
-                </div>
-            </div>
-          </form>
-    
-        </div> 
-        <div class="modal-footer"> 
-          <input type="submit" class="btn btn-ns"[disabled]="!addCredentialForm.valid" value="Add Credential" (click) = "AddPersonalCredential()">
-          <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
-            Close 
-          </button> 
-        </div> 
-      </div> 
-    </div> 
-  </div>
-
 <!-- Password Generator -->
 <div class="modal" tabindex="-1" role="dialog" id="PasswordGenerator"> 
-<div class="modal-dialog" role="document"> 
-  <div class="modal-content"> 
-    <div class="modal-header"> 
-      <h4 class="modal-title">PasswordGenerator</h4> 
-    </div> 
-    <div class="modal-body">
-            <div class="row">
-                <div class="col">
-                    <p>Enter length of password</p>
-                </div>
-                <div class="col">
-                    <input type="number" id="passwordLength">
-                </div>
-            </div>
-    
-            <div class="row">
-                <div class="col">
-                    <p>numbers</p>
-                </div>
-                <div class="col">
-                    <input type="checkbox" id="Numbers">
-                </div>
-            </div>
-    
-            <div class="row">
-                <div class="col">
-                    <p>Upper Case</p>
-                </div>
-                <div class="col">
-                    <input type="checkbox" id="UpperCase">
-                </div>
-            </div>
-    
-            <div class="row">
-                <div class="col">
-                    <p>Lower Case</p>
-                </div>
-                <div class="col">
-                    <input type="checkbox" id="LowerCase">
-                </div>
-            </div>
-    
-            <div class="row">
-                <div class="col">
-                    <p>special characters</p>
-                </div>
-                <div class="col">
-                    <input type="checkbox" id="SpecialCharacter">
-                </div>
-            </div>
-    
-            <div class="row">
-                <div class="col">
-                    <p>Brackets</p>
-                </div>
-                <div class="col">
-                    <input type="checkbox" id="Brackets">
-                </div>
-            </div>
-    
-            <div class="row">
-                <div class="col">
-                    <input type="submit" value="Generate Password" (click) = "GeneratedPassword()">
-                </div>
-                <div class="col">
-                    <p id="passwordString"></p>
-                </div>
-            </div>
-
-    </div> 
-    <div class="modal-footer"> 
-      <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
-        Close 
-      </button> 
-    </div> 
-  </div> 
-</div> 
-</div>
-
-<!-- Give Credential -->
-<div class="modal" tabindex="-1" role="dialog" id="GiveCredential"> 
-<div class="modal-dialog modal-lg" role="document"> 
-  <div class="modal-content"> 
-    <div class="modal-header"> 
-      <h4 class="modal-title">Give Credential</h4> 
-    </div> 
-    <div class="modal-body"> 
-        Give Credential
-
-    </div> 
-    <div class="modal-footer"> 
-      <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
-        Close 
-      </button> 
-    </div> 
-  </div> 
-</div> 
-</div>
-
-}
-
-@else if(selectTab.certificatesTab)
-{
-<!-- Upload Certificates -->
-<div class="modal" tabindex="-1" role="dialog" id="UploadCertificate"> 
-    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document"> 
+    <div class="modal-dialog" role="document"> 
       <div class="modal-content"> 
-        <div class="modal-header"> 
-          <h4 class="modal-title">Upload Certificate</h4> 
+        <div class="modal-header btn-ns"> 
+          <h4 class="modal-title">PasswordGenerator</h4> 
         </div> 
-        <div class="modal-body"> 
-            <form id="_uploadCertificate">
+        <div class="modal-body">
+            <form [formGroup]="passwordGeneratorFormGroup">
                 <div class="row">
-                    <div class="col-3 text-end">
-                        Uplaod Certificate
+                    <div class="col">
+                        <p>Enter length of password</p>
                     </div>
-                    <div class="col-9">
-                        <input type="file" class="form-control">
+                    <div class="col">
+                        <input type="number" id="passwordLength" formControlName="passwordlength">
+                    </div>
+                </div>
+        
+                <div class="row">
+                    <div class="col">
+                        <p>numbers</p>
+                    </div>
+                    <div class="col">
+                        <input type="checkbox" id="Numbers" formControlName="number">
+                    </div>
+                </div>
+        
+                <div class="row">
+                    <div class="col">
+                        <p>Upper Case</p>
+                    </div>
+                    <div class="col">
+                        <input type="checkbox" id="UpperCase" formControlName="uppercase">
+                    </div>
+                </div>
+        
+                <div class="row">
+                    <div class="col">
+                        <p>Lower Case</p>
+                    </div>
+                    <div class="col">
+                        <input type="checkbox" id="LowerCase" formControlName="lowercase">
+                    </div>
+                </div>
+        
+                <div class="row">
+                    <div class="col">
+                        <p>special characters</p>
+                    </div>
+                    <div class="col">
+                        <input type="checkbox" id="SpecialCharacter" formControlName="specialcharacters">
+                    </div>
+                </div>
+        
+                <div class="row">
+                    <div class="col">
+                        <p>Brackets</p>
+                    </div>
+                    <div class="col">
+                        <input type="checkbox" id="Brackets" formControlName="brackets">
+                    </div>
+                </div>
+        
+                <div class="row">
+                    <div class="col">
+                        <p id="passwordString"></p>
                     </div>
                 </div>
             </form>
-    
         </div> 
-        <div class="modal-footer"> 
-            <input type="submit" class="btn btn-ns" value="Upload Certificate" multiple>
-            <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
-              Close 
-            </button> 
+        <div class="modal-footer">
+            <input type="submit" value="Generate Password" (click) = "GeneratedPassword()" class="btn btn-ns" [disabled]="!passwordGeneratorFormGroup.valid"> 
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button> 
         </div> 
       </div> 
     </div> 
     </div>
-}

@@ -1,7 +1,7 @@
 import { NgFor,NgIf,CommonModule,NgSwitch,NgSwitchCase, NgSwitchDefault } from "@angular/common";
 import { Component,Input } from "@angular/core";
 import { GeneratePassword } from '../../passwordGenerator/passwordGenerator';
-import { ReactiveFormsModule, FormControl, FormGroup, RequiredValidator, FormArray } from '@angular/forms';
+import { ReactiveFormsModule, FormControl, FormGroup, RequiredValidator, FormArray, FormControlName } from '@angular/forms';
 import { iSelectTabTabs } from "../../interfaces/relationshipInterfaces/SelectNavTabs";
 import { iPostCredential } from "../../interfaces/PostCredential";
 import { Validators } from "@angular/forms"
@@ -27,6 +27,17 @@ export class WorkAreaHeader {
     @Input() selectTab: iSelectTabTabs = {credentialsTab: true, certificatesTab: false, privateTab: false}
     itemList: any
     responseStatus:string = ""
+
+    passwordGeneratorFormGroup = new FormGroup(
+        {
+            passwordlength: new FormControl('',[Validators.required]),
+            number: new FormControl(true),
+            uppercase: new FormControl(true),
+            lowercase: new FormControl(true),
+            specialcharacters: new FormControl(false),
+            brackets: new FormControl(false),
+        }
+    )
 
     addCredentialForm = new FormGroup({
         domain: new FormControl('',[Validators.required]),
@@ -60,8 +71,6 @@ export class WorkAreaHeader {
         email: new FormControl(''),
         note: new FormControl(''),
     })
-
-    credentialGiveCheckbox:boolean = false
 
     constructor(private connectionService: ConnectionService) {}
 
@@ -136,9 +145,10 @@ export class WorkAreaHeader {
                 let temp = checkbox as HTMLInputElement
                 if(temp.checked)
                 {
-                    postCredential.teams.push({teamname: temp.name, clientid: temp.value, teamid: temp.id, clientname:"" })
+                    postCredential.teams.push(JSON.parse(temp.value))
                 }
             }
+        console.log(PostCredential)
         let postStatus = await this.connectionService.postItem(api_endpoints.setCredentials,PostCredential) as iPOstStatus
         this.responseStatus = postStatus.status
     }
@@ -273,4 +283,6 @@ export class WorkAreaHeader {
         let postStatus = (await this.connectionService.postItem(api_endpoints.giveCredential,postGiveCredential)) as iPOstStatus
         this.responseStatus = postStatus.status
     }
+
+
 }

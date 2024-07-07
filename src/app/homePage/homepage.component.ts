@@ -91,14 +91,7 @@ export class HomepageComponent {
     else if (this.selectTab.privateTab)
       {
         this.navMenuBodyItems = await this.GetPersonalTabFoders(api_endpoints.getPersonalCredentialsFoldersByUserID.concat(session_id))
-        if(this.navMenuBodyItems[0] != null)
-        {
-          this.workAreaBodyItems = await this.GetPersoanlCredentials(api_endpoints.getPersonalCredentialsFolderByFolderID.concat(session_id,'/',this.navMenuBodyItems[0].id))
-        }
-        else
-        {
-          this.workAreaBodyItems = await this.GetPersoanlCredentials(api_endpoints.getPersonalCredentialsFolderByFolderID.concat(session_id))
-        }
+        this.workAreaBodyItems = await this.GetPersoanlCredentials(api_endpoints.getPersonalCredentialsFolderByFolderID.concat(session_id))
 
       }
   }
@@ -119,6 +112,7 @@ export class HomepageComponent {
 
   async GetCredentialsTabCompanies(url: string)
   {
+    console.log(url)
     let json = await this.connectionService.getItems(url)
     let jsonData = json as iClientOrganization[]
     for(let client of jsonData)
