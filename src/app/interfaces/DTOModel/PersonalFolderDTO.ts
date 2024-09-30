@@ -4,7 +4,7 @@ export interface iPersonalFolder
     name: string | null
 }
 
-export interface iPersonalFolderPost
+export interface iPostPersonalFolder
 {
     name: string | null
 }

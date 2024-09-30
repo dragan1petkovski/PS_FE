@@ -1,5 +1,5 @@
-<div class="p-3">
-    <table class="m-0 p-0 table-ns">
+<div class="container-fluid p-3 pt-0">
+    <table class="m-0 p-0 table-ns w-100">
     @if(selectTab.credentialsTab)
     {
         <thead>
@@ -9,26 +9,27 @@
                 <td class="table-ns">Username</td>
                 <td class="table-ns">Remote</td>
                 <td class="table-ns">Note</td>
-                <td colspan="2" class="table-ns">Password</td>
+                <td class="table-ns"></td>
             </tr>
         </thead>
         <tbody class="bg-white">
-            <tr *ngFor="let item of items" style="background-color: #15dffd !important;">
-                <td style="background-color: white !important;">{{item.teamname}}</td>
-                <td style="background-color: white !important;">{{item.domain}}</td>
-                <td style="background-color: white !important;">{{item.username}}</td>
-                <td style="background-color: white !important;">{{item.remote}}</td>
-                <td style="background-color: white !important;">{{item.note}}</td>
-                <td style="background-color: white !important;" class="nospaceincell">
-                    <p id={{item.id}} class="d-inline">{{item.password}}</p>&nbsp;
-                    <i class="bi bi-copy ml-1" (click) = "CopyPassword('cred',item.id)"></i>&nbsp;
-                    <i type="cred" id={{item.id}}-eye class="bi bi-eye" (click) = "ShowPassword('cred',item.id)"></i>
-                </td>
-                <td class="nospaceincell"  style="background-color: white !important;">
-                    <i class="bi bi-pencil"></i>&nbsp;
-                    <i class="bi bi-trash" (click) = "OpenDeleteCredentialModal('DeleteCredential',item.id,item.username,item.domain, item.teamid)"></i> &nbsp;
-                </td>
-            </tr>
+            @if(credentials.length > 0)
+            {
+                <tr *ngFor="let item of credentials" style="background-color: #15dffd !important;">
+                    <td style="background-color: white !important;">{{item.teamname}}</td>
+                    <td style="background-color: white !important;">{{item.domain}}</td>
+                    <td style="background-color: white !important;">{{item.username}}</td>
+                    <td style="background-color: white !important;">{{item.remote}}</td>
+                    <td style="background-color: white !important;">{{item.note}}</td>
+                    <td style="background-color: white !important;" class="nospaceincell">
+                        <p id={{item.id}} class="d-inline"></p>&nbsp;
+                        <i class="bi bi-copy ml-1" (click) = "CopyPassword('cred',item.id)"></i>&nbsp;
+                        <i type="cred" id={{item.id}}-eye class="bi bi-eye" (click) = "ShowPassword('cred',item.id,item.teamid)"></i>&nbsp;
+                        <i class="bi bi-pencil" (click) = "OpenUpdateCredentialModal('UpdateCredential',item.id)"></i>&nbsp;
+                        <i class="bi bi-trash" (click) = "OpenDeleteCredentialModal('DeleteCredential','team', item.domain||'', item.username, item.teamid||'', item.id)"></i> &nbsp;
+                    </td>
+                </tr>
+            }
         </tbody>
 
     }
@@ -36,33 +37,47 @@
     {
     <thead>
         <tr>
+            <td>Team</td>
             <td>Name</td>
             <td>IssuedTo</td>
             <td>IssuedBy</td>
             <td>Expriation Date</td>
-            <td colspan="2">Password</td>
+            <td colspan="2"></td>
             
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let item of items" style="background-color: #15dffd !important;">
+
+    @if(certificates.length > 0)
+    {
+        <tr *ngFor="let item of certificates" style="background-color: #15dffd !important;" >
+            <td style="background-color: white !important;">{{item.teamname}}</td>
             <td style="background-color: white !important;">{{item.name}}</td>
             <td style="background-color: white !important;">{{item.issuedto}}</td>
             <td style="background-color: white !important;">{{item.issuedby}}</td>
             <td style="background-color: white !important;">{{item.expirationdate}}</td>
-            <td class="nospaceincell" style="background-color: white !important;">
-                <p id={{item.id}} class="d-inline">{{item.password}}</p>&nbsp;
-                <i class="bi bi-copy ml-1"  (click) = "CopyPassword('cert',item.id)"></i>&nbsp;
-                <i type="cert" id={{item.id}}-eye class="bi bi-eye" (click) = "ShowPassword('cert',item.id)"></i>
-            </td>
-           
-            <td class="nospaceincell" style="background-color: white !important;">
-                <i class="bi bi-pencil"></i> &nbsp;
-                <i class="bi bi-trash"></i> &nbsp;
-                <i class="bi bi-send"></i> &nbsp;
-                <i class="bi bi-save"></i>
+            <td class="nospaceincell text-end" style="background-color: white !important;">
+                <p id={{item.id}} class="d-inline"></p>&nbsp;
+                @if(item.pem)
+                {
+                    <i class="bi bi-save-fill" (click)="DownloadCertificateKey(item.id,item.teamid)"></i> &nbsp;
+                    <i class="bi bi-save" (click)="DownloadCertificate(item.id,item.teamid)"></i> &nbsp;
+                    <i class="bi bi-trash" (click) = "OpenDeleteCertificateModal('DeleteCertificate',item.issuedto,item.teamid,item.id)"></i> &nbsp;
+
+                    
+                }
+                @else
+                {
+                    <i class="bi bi-copy ml-1"  (click) = "CopyPassword('cert',item.id)"></i>&nbsp;
+                    <i type="cert" id={{item.id}}-eye class="bi bi-eye" (click) = "ShowPassword('cert',item.id,item.teamid)"></i> &nbsp;
+                    <i class="bi bi-save" (click)="DownloadCertificate(item.id,item.teamid)"></i> &nbsp;
+                    <i class="bi bi-trash" (click) = "OpenDeleteCertificateModal('DeleteCertificate',item.issuedto,item.teamid,item.id)"></i> &nbsp;
+                }
+
+                
             </td>
         </tr>
+    }
     </tbody>
     }
     @else if(selectTab.privateTab)
@@ -77,7 +92,7 @@
             </tr>
         </thead>
         <tbody >
-            <tr *ngFor="let item of items" style="background-color: #15dffd !important;">
+            <tr *ngFor="let item of personalcredentials" style="background-color: #15dffd !important;">
                 <td style="background-color: white !important;">{{item.domain}}</td>
                 <td style="background-color: white !important;">{{item.username}}</td>
                 <td style="background-color: white !important;">{{item.remote}}</td>
@@ -85,11 +100,11 @@
                 <td class="nospaceincell" style="background-color: white !important;">
                     <p id={{item.id}} class="d-inline">{{item.password}}</p>&nbsp;
                     <i class="bi bi-copy ml-1" (click) = "CopyPassword('cred',item.id)"></i>&nbsp;
-                    <i type="cred" id={{item.id}}-eye class="bi bi-eye" (click) = "ShowPassword('cred',item.id)"></i>
+                    <i type="cred" id={{item.id}}-eye class="bi bi-eye" (click) = "ShowPassword('personalCred',item.id)"></i>
                 </td>
                 <td class="nospaceincell" style="background-color: white !important;">
-                    <i class="bi bi-pencil"></i>&nbsp;
-                    <i class="bi bi-trash" (click) = "OpenDeleteCredentialModal('DeleteCredential',item.id,item.username,item.domain, item.teamid)"></i> &nbsp;
+                    <i class="bi bi-pencil" (click) = "this.OpenUpdatePersonalCredentialModal('EditPersonalCredential',item.personalfolderid||undefined,item.id)"></i>&nbsp;
+                    <i class="bi bi-trash" (click) = "OpenDeleteCredentialModal('DeleteCredential','personal',item.domain||'',item.username, item.personalfolderid||'',item.id)"></i> &nbsp;
                 </td>
             </tr>
         </tbody>
@@ -100,39 +115,116 @@
 
 @if(selectTab.credentialsTab)
 {
-
-
-    <div
-    class="modal"
-    tabindex="-1"
-    role="dialog"
-    style='display:none'
-    id="GiveCredential"> 
-    <div class="modal-dialog" role="document"> 
+  <!-- Edit Credential -->
+  <div class="modal" tabindex="-1" role="dialog" id="UpdateCredential"> 
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document"> 
       <div class="modal-content"> 
-        <div class="modal-header"> 
-          <h4 class="modal-title">Send Credential</h4> 
+        <div class="modal-header btn-ns"> 
+          <h4 class="modal-title">Update Credential</h4> 
         </div> 
         <div class="modal-body"> 
-            <div class="row">
-                <div class="col">
-    
+            @if(this.responseStatus.status === "OK")
+            {
+                <div class="alert alert-success" role="alert">
+                    Credential successfully updated
+                  </div>
+            }
+            @else if (this.responseStatus.status === "KO")
+            {
+                <div class="alert alert-danger" role="alert">
+                    Failed to updated credential - {{this.responseStatus.errorMessage}}
                 </div>
-                <div class="col">
-                    
+            }
+
+          <form [formGroup]="this.updateCredentialForm" >
+                <div class="row m-2">
+                    <div class="col-4 text-end">
+                        <p>Domain Name <span *ngIf="updateCredentialForm.controls.domain.invalid" class="text-danger">*</span></p>
+                    </div>
+                    <div class="col d-flex justify-content-center p-0">
+                        <input formControlName="domain" class="w-100 form-control" type="text" value={{this.updateCredentialForm.value.domain}}>
+                    </div>
+                  
                 </div>
-            </div>
+                @if(this.updateCredentialForm.controls.domain.invalid && this.updateCredentialForm.controls.domain.dirty)
+                {
+                    <div class="row">
+                        <p class="text-danger text-center">{{this.AlphanumericStringVM("Domain")}}</p>
+                        
+                    </div>
+                }
+
+
+                <div class="row m-2">
+                    <div class="col-4 text-end">
+                        <p>Username <span *ngIf="updateCredentialForm.controls.username.invalid" class="text-danger">*</span></p>
+                    </div>
+                    <div class="col d-flex justify-content-center p-0">
+                        <input formControlName="username" class="w-100 form-control" type="text" value={{this.updateCredentialForm.value.username}}>
+                    </div>
+                </div>
+                @if(this.updateCredentialForm.controls.username.invalid && this.updateCredentialForm.controls.username.dirty)
+                {
+                    <div class="row">
+                        <p class="text-danger text-center">{{this.AlphanumericStringVM("Username")}}</p>
+                    </div>
+                }
+                <div class="row m-2">
+                    <div class="col-4 text-end">
+                        <p>Password <span *ngIf="updateCredentialForm.controls.password.invalid" class="text-danger">*</span></p>
+                    </div>
+                    <div class="col d-flex justify-content-center p-0">
+                        <input formControlName="password" class="w-100 form-control" type="password" value={{this.updateCredentialForm.value.password}}>
+                    </div>
+
+                </div>
+
+                <div class="row m-2">
+                    <div class="col-4 text-end">
+                        <p>E-mail <span *ngIf="updateCredentialForm.controls.email.invalid" class="text-danger">*</span></p>
+                    </div>
+                    <div class="col d-flex justify-content-center p-0">
+                        <input formControlName="email" class="w-100 form-control" type="email" placeholder="mail@example.com" value={{this.updateCredentialForm.value.email}}>
+                    </div>
+
+                </div>
+                @if(this.updateCredentialForm.controls.email.invalid && this.updateCredentialForm.controls.email.dirty)
+                {
+                    <div class="row">
+                        <p class="text-danger text-center">{{this.emailVM}}</p>
+                    </div>
+                }
+                <div class="row m-2">
+                    <div class="col-4 text-end ">
+                        <p>Remote</p>
+                    </div>
+                    <div class="col d-flex justify-content-center p-0">
+                        <input formControlName="remote" class="w-100 form-control" type="text" placeholder="Enter remote location" value={{this.updateCredentialForm.value.remote}}>
+                    </div>
+
+                </div>
+                <div class="row m-2">
+                    <div class="col-4 text-end ">
+                        <p>Note</p>
+                    </div>
+                    <div class="col d-flex justify-content-center p-0">
+                        <input formControlName="note" class="w-100 form-control" type="text" placeholder="Enter note" value={{this.updateCredentialForm.value.note}}>
+                    </div>
+
+                </div>
+          </form>
     
         </div> 
         <div class="modal-footer"> 
-          <button type="button" class="btn btn-danger" 
-                  > 
+          <input type="submit" class="btn btn-ns" [disabled]="!updateCredentialForm.valid" value="Edit Credential" from="editCredentialForm" (click) = "UpdateCredentail()">
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
             Close 
           </button> 
         </div> 
       </div> 
     </div> 
-    </div>
+  </div>
+
 }
 
 <div
@@ -147,22 +239,22 @@ id="DeleteCredential">
       <h4 class="modal-title">Delete Credential</h4> 
     </div> 
     <div class="modal-body"> 
-        @if(responseStatus === "OK")
+        @if(responseStatus.status === "OK")
         {
             <div class="alert alert-success" role="alert">
                 Credential successfully added
               </div>
         }
-        @else if (responseStatus === "KO")
+        @else if (responseStatus.status === "KO")
         {
             <div class="alert alert-danger" role="alert">
-                Failed to add credential
+                Failed to add credential {{this.responseStatus.errorMessage}}
             </div>
         }
         Do you want to delete {{deleteModalName}}?
     </div> 
     <div class="modal-footer"> 
-        <button type="button" class="btn btn-ns" (click) = "DeleteCredential()">Delete credential </button>
+        <button type="button" class="btn btn-ns" (click) = "DeleteCredential(this.deleteType)">Delete credential </button>
         <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
           Close 
         </button> 
@@ -170,3 +262,176 @@ id="DeleteCredential">
   </div> 
 </div> 
 </div>
+
+
+<div
+class="modal"
+tabindex="-1"
+role="dialog"
+style='display:none'
+id="DeleteCertificate"> 
+<div class="modal-dialog" role="document"> 
+  <div class="modal-content"> 
+    <div class="modal-header"> 
+      <h4 class="modal-title">Delete Certificate</h4> 
+    </div> 
+    <div class="modal-body"> 
+        @if(this.responseStatus.status === "OK")
+        {
+            <div class="alert alert-success" role="alert">
+                Certificate successfully deleted
+              </div>
+        }
+        @else if (responseStatus.status === "KO")
+        {
+            <div class="alert alert-danger" role="alert">
+                Failed to delete certificate {{this.responseStatus.errorMessage}}
+            </div>
+        }
+        Do you want to delete {{deleteModalName}}?
+    </div> 
+    <div class="modal-footer"> 
+        <button type="button" class="btn btn-ns" (click) = "DeleteCertificate()">Delete credential </button>
+        <button type="button" class="btn btn-danger" (click) = "CloseModal('DeleteCertificate')"> 
+          Close 
+        </button> 
+    </div> 
+  </div> 
+</div> 
+</div>
+
+<!-- Edit Personal Credential -->
+
+<div class="modal" tabindex="-1" role="dialog" id="EditPersonalCredential"> 
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document"> 
+      <div class="modal-content"> 
+        <div class="modal-header btn-ns"> 
+          <h4 class="modal-title">Edit Credential</h4> 
+        </div> 
+        <div class="modal-body"> 
+            @if(responseStatus.status === "OK")
+            {
+                  <div class="alert alert-success" role="alert">
+                      Credential successfully added
+                    </div>
+            }
+            @else if (responseStatus.status === "KO")
+            {
+                  <div class="alert alert-danger" role="alert">
+                      Failed to add credential - {{this.responseStatus.errorMessage}}
+                  </div>
+            }
+          <form [formGroup]="updatePersonalCredentialForm">
+            <div class="row mt-2 me-2">
+                <div class="col-4 text-end">
+                    <p>Domain Name <span *ngIf="updatePersonalCredentialForm.controls.domain.invalid" class="text-danger">*</span></p>
+                </div>
+                <div class="col d-flex justify-content-center p-0">
+                    <input formControlName="domain" class="w-100 form-control" type="text" value={{this.updatePersonalCredentialForm.value.domain}}>
+                </div>
+            </div>
+            @if(this.updatePersonalCredentialForm.controls.domain.invalid && this.updatePersonalCredentialForm.controls.domain.dirty)
+            {
+                <div class="row mt-2">
+                    <p class="text-danger text-center">{{this.AlphanumericStringVM("Domain")}}</p>
+                </div>
+            }
+            <div class="row mt-2 me-2">
+                <div class="col-4 text-end">
+                    <p>Username <span *ngIf="updatePersonalCredentialForm.controls.username.invalid" class="text-danger">*</span></p>
+                </div>
+                <div class="col d-flex justify-content-center p-0">
+                    <input formControlName="username" class="w-100 form-control" type="text" value={{this.updatePersonalCredentialForm.value.username}}>
+                </div>
+                    
+            </div>
+            @if(this.updatePersonalCredentialForm.controls.username.invalid && this.updatePersonalCredentialForm.controls.username.dirty)
+            {
+                <div class="row me-2 mt-2">
+                    <p class="text-danger text-center">{{this.AlphanumericStringVM("Username")}}</p>
+                </div>
+            }
+            <div class="row mt-2 me-2">
+                <div class="col-4 text-end">
+                    <p>Password <span *ngIf="updatePersonalCredentialForm.controls.password.invalid" class="text-danger">*</span></p>
+                </div>
+                <div class="col d-flex justify-content-center p-0">
+                    <input formControlName="password" class="w-100 form-control" type="password">
+                </div>
+                    
+            </div>
+            <div class="row mt-2 me-2">
+                <div class="col-4 text-end">
+                    <p>E-mail</p>
+                </div>
+                <div class="col d-flex justify-content-center p-0">
+                    <input formControlName="email" class="w-100 form-control" type="email" placeholder="mail@example.com" value={{this.updatePersonalCredentialForm.value.email}}>
+                </div>
+                    
+            </div>
+            @if(this.updatePersonalCredentialForm.controls.email.invalid && this.updatePersonalCredentialForm.controls.email.dirty)
+            {
+                <div class="row me-2 mt-2">
+                    <p class="text-danger text-center">{{this.emailVM}}</p>
+                </div>
+            }
+            
+            <div class="row mt-2 me-2">
+                <div class="col-4 text-end ">
+                    <p>Remote</p>
+                </div>
+                <div class="col d-flex justify-content-center p-0">
+                    <input formControlName="remote" class="w-100 form-control" type="text" placeholder="Enter username" value={{this.updatePersonalCredentialForm.value.remote}}>
+                </div>
+                    
+            </div>
+            <div class="row mt-2 me-2">
+                <div class="col-4 text-end ">
+                    <p>Note</p>
+                </div>
+                <div class="col d-flex justify-content-center p-0">
+                    <input formControlName="note" class="w-100 form-control" type="text" placeholder="Enter username" value={{this.updatePersonalCredentialForm.value.note}}>
+                </div>
+                    
+            </div>
+        
+            <div class="row mt-2 me-2">
+                <div class="col-4 text-end ">
+                    <p>None</p>
+                </div>
+                <div class="col d-flex justify-content-start p-0">
+                    <input type="radio"  name="personalFolder" class="persoanlFolderList" value="">
+                </div>
+            </div>
+
+
+            <div class="row mt-2 me-2" *ngFor="let item of personalFolderList">
+                  <div class="col-4 text-end ">
+                      <p>{{item.name}}</p>
+                  </div>
+                  @if(item.id == this.updatePersonalCredentialForm.value.personalFolderId)
+                  {
+                    <div class="col d-flex justify-content-start p-0">
+                        <input type="radio"  name="personalFolder" class="persoanlFolderList" id={{item.id}} value={{item.id}} checked>
+                    </div>
+                  }
+                  @else {
+                    <div class="col d-flex justify-content-start p-0">
+                        <input type="radio"  name="personalFolder" class="persoanlFolderList" id={{item.id}} value={{item.id}}>
+                    </div>
+                  }
+            </div>
+
+          </form>
+    
+        </div> 
+        <div class="modal-footer"> 
+          <input type="submit" class="btn btn-ns"[disabled]="!updatePersonalCredentialForm.valid" value="Edit Credential" (click) = "UpdatePersonalCredential()">
+          <button type="button" class="btn btn-danger" (click) = "CloseModal('EditPersonalCredential')"> 
+            Close 
+          </button> 
+        </div> 
+      </div> 
+    </div> 
+  </div>
+  

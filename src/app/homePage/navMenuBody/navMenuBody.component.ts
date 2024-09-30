@@ -1,9 +1,9 @@
 import { Component,Output,Input, EventEmitter } from "@angular/core";
 import { NgFor,NgIf } from "@angular/common";
-import { iClientOrganization } from "../../interfaces/clientOrganization";
-import { iCertificate } from "../../interfaces/certificate";
+import { iGetCertificate } from "../../interfaces/Certificate/certificate";
 import { iSelectTabTabs } from "../../interfaces/relationshipInterfaces/SelectNavTabs";
-import { api_endpoints, session_id } from "../../api_endpoints";
+import { api_endpoints } from "../../StaticObjects/api_endpoints";
+import { iDataRequest } from "../../interfaces/relationshipInterfaces/CredClientRelation";
 
 @Component({
     selector: 'navMenuBody',
@@ -14,33 +14,34 @@ import { api_endpoints, session_id } from "../../api_endpoints";
     
 })
 export class navMenuBody {
-    @Input() companyItems:any
-    @Input() certItems:iCertificate[] = []
+    @Input() companyItems:any[] = []
+    @Input() certItems:iGetCertificate[] = []
     @Input() selectTab: iSelectTabTabs = {credentialsTab: true, certificatesTab: false, privateTab: false}
-    @Output() CompanyURL = new EventEmitter<string>()
-    ChnageCredentialList(url: string,id: string)
+    @Output() dataRequest = new EventEmitter<iDataRequest>()
+
+    constructor(){}
+
+    ChangeCredentialList(id: string)
     {
+        let datarequest: iDataRequest = {clientid: id,type: "credential"}
         this.ActiveBtn(id)
-        this.CompanyURL.emit(url)
+        this.dataRequest.emit(datarequest)
         
     }
 
-    ChnagePersonalCredentialList(baseurl: string, userid: string, folderid: string)
+    ChangeCertificateList(id: string)
     {
-        console.log(`${userid} : ${folderid}`)
-        let url = baseurl+userid+"/"+folderid
+        let datarequest: iDataRequest = {clientid: id,type: "certificate"}
+        this.ActiveBtn(id)
+        this.dataRequest.emit(datarequest)
+        
+    }
+
+    ChnagePersonalCredentialList(folderid: string)
+    {
+        let datarequest: iDataRequest = {clientid: folderid,type: "personal"}
         this.ActiveBtn(folderid)
-        this.CompanyURL.emit(url)
-    }
-
-    Link_getPersonalCredentialsByFolderid()
-    {
-        return api_endpoints.getPersonalCredentialsFolderByFolderID
-    }
-
-    GetSessionID()
-    {
-        return session_id
+        this.dataRequest.emit(datarequest)
     }
 
     ActiveBtn(id: string)

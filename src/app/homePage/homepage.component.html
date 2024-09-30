@@ -1,10 +1,10 @@
-<div class="row m-0 p-3">
-  <div class="col-3 m-0 p-0 ">
-      <navMenuHeader (getSelectTab) = "GetTabInformation($event)" ></navMenuHeader>
-      <navMenuBody [companyItems] = "navMenuBodyItems" (CompanyURL) = "GetCompanyInformation($event)" [selectTab] = "selectTab"></navMenuBody>
+<div class="d-flex d-flex-inline position-absolute container-fluid m-0 p-0 h-100" (mouseleave)="this.EmptyNavBodyData()">
+  <div class="m-0 p-0 d-flex d-flex-inline btn-ns">
+      <navMenuHeader (getSelectTab)= "this.GetNavBodydata($event)"></navMenuHeader>
+      <navMenuBody [companyItems] = "navMenuBodyItems" (dataRequest)="GetData($event)" [selectTab]="selectTab"></navMenuBody>
   </div>
-  <div class="col-9 p-0 m-0">
-      <workAreaHeader [selectTab] = "selectTab"></workAreaHeader>
-      <workAreaBody [items] = "workAreaBodyItems" [selectTab] = "selectTab"></workAreaBody>
+  <div class="p-0 m-0 flex-fill" id="workarea"(mouseenter)="this.EmptyNavBodyData()" >
+      <workAreaHeader [selectTab] = "selectTab" (searchParameter)="SetSreachString($event)"></workAreaHeader>
+      <workAreaBody [certificates] = "certificateList" [credentials]="credentialList" [personalcredentials]="personalcredentialList" [selectTab] = "selectTab"></workAreaBody>
   </div>
 </div>

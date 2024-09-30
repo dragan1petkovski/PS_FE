@@ -1,6 +1,6 @@
 import { Component, EventEmitter } from "@angular/core"
 import { Output } from "@angular/core"
-import { api_endpoints } from '../../api_endpoints'
+import { api_endpoints } from '../../StaticObjects/api_endpoints'
 
 @Component({
     standalone: true,

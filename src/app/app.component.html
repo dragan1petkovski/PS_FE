@@ -1,6 +1,80 @@
-<div class="row mb-3 p-0 btn-ns" >
-    <p class="h1 text-center"><strong>Password</strong>Sense</p>
-</div>
+<nav class="navbar navbar-expand-sm btn-ns">
+  <div class="container-fluid">
+    <p class="h1"><strong>Password</strong>Sense</p>
+    @if(this.flag)
+    {
+      <div class="dropdown d-flex">
+        <i class="bi bi-person-circle" data-bs-toggle="dropdown" style="font-size: 2em;"></i>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="#">Profile</a></li>
+          <li><a class="dropdown-item" (click) = "ShowModal()">Change Password</a></li>
+          <li class="dropdown-item" (click)="this.SignOut()">Sign Out</li>
+        </ul>
+      </div>
+    }
+
+  </div>
+</nav>
+
 
 <router-outlet></router-outlet>
 
+<!--style='display:none' -->
+<div
+class="modal"
+tabindex="-1"
+role="dialog"
+
+id="ChangePassword"> 
+<div class="modal-dialog modal-lg" role="document"> 
+  <div class="modal-content"> 
+    <div class="modal-header"> 
+      <h4 class="modal-title">Change Password</h4> 
+    </div> 
+    <div class="modal-body"> 
+        @if(responseStatus === "OK")
+        {
+            <div class="alert alert-success" role="alert">
+                Password Successfully changed
+              </div>
+        }
+        @else if (responseStatus === "KO")
+        {
+            <div class="alert alert-danger" role="alert">
+                Faild to change Password
+            </div>
+        }
+        <form [formGroup]="ChangePasswordFormGroup">
+          <div class="row mt-3">
+            <input type="password" placeholder="Current Password" class="form-control" formControlName="oldpassword">
+          </div>
+          
+          <div class="row mt-3">
+            <input type="password" placeholder="New Password" class="form-control" formControlName="newpassword">
+          </div>
+  
+          <div class="row mt-3">
+            <input type="password" placeholder="Confirm Password" class="form-control" formControlName="confirmpassword">
+          </div>
+
+          <div class="row mt-3">
+            <div class="col-8 m-0 p-0">
+              <input type="string" placeholder="Enter verification code" class="form-control" formControlName="verificationCode">
+            </div>
+            <div class="col-4 m-0 p-0">
+              <button class="form-control" (click) = "GetVerificationCode()">Get Verification Code</button>
+            </div>
+          </div>
+        </form>
+
+
+    </div> 
+    <div class="modal-footer"> 
+        <input type="submit" class="btn btn-ns" (click) = "ChangePassword()" value="Change Password" [disabled]="!ChangePasswordFormGroup.valid">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
+          Close 
+        </button> 
+    </div> 
+  </div> 
+</div> 
+</div>

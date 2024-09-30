@@ -1,12 +1,10 @@
-<div class="row m-0 p-3">
-    <div class="col-3 m-0 p-0 ">
-        <AdminNavMenuHeader></AdminNavMenuHeader>
+<div class="d-flex d-flex-inline position-absolute container-fluid m-0 p-0 h-100">
+    <div class="m-0 p-0 d-flex d-flex-inline btn-ns">
         <NavMenu (apiEndpoint) = "GetWorkAreaBodyTable($event)" (currentSelectTab) = "GetCurrentlySelectedTab($event)"></NavMenu>
     </div>
-    <div class="col-9 p-0 m-0">
-        <AdminpageHeader></AdminpageHeader>
+    <div class="p-0 m-0 flex-fill">
+        <AdminWorkAreaHeader (searchParameter)="SetSreachString($event)"></AdminWorkAreaHeader>
         <AdminpageBody [currentSelectedTab] = "selectTab" [tableData]= "workAreaBodyTable"></AdminpageBody>
     </div>
 </div>
-
-
+ 

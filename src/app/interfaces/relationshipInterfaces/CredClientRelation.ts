@@ -1,4 +1,4 @@
-export interface iCredClientRelation {
-    companyCredUrl: string,
-    companyId: string
+export interface iDataRequest {
+    type: string,
+    clientid: string
 }

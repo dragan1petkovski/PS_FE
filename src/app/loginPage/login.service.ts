@@ -2,7 +2,6 @@ import {  Injectable } from '@angular/core';
 import {  FormGroup } from '@angular/forms';
 import { Router  } from '@angular/router';
 import { ConnectionService } from '../utility/connection.service';
-import { iUser } from '../interfaces/user';
 
 
 @Injectable({
@@ -10,24 +9,22 @@ import { iUser } from '../interfaces/user';
 })
 export class AuthService{
 
+    signInStatus: boolean = false
     constructor(private router: Router, private connectionService: ConnectionService )
     {
     }
 
-    async DummyLogin(loginGroup: FormGroup)
+    async SignIn(loginGroup: FormGroup)
     {
-        let users: iUser[]
-        let usersObj = await this.connectionService.getItems("/api/userDB.json")
-        users = usersObj as iUser[]
-
-        if(users.find(user => user.username === loginGroup.value.username.toLowerCase() && user.password === loginGroup.value.password) != undefined)
+        return await this.connectionService.PostSignIn("/api/login/SignIn",{username: loginGroup.value.username, password: loginGroup.value.password}).then(response => {
+            if(response.status === 401)
             {
-                this.router.navigate(["/home"])
+                return null
             }
-        else
-        {
-            console.error("Login failed")
-        }
-        
+            else
+            {
+                return response.text()
+            }
+        })
     }
 }

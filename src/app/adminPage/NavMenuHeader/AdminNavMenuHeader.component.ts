@@ -1,12 +1,12 @@
 import { Component } from "@angular/core"
 import { ReactiveFormsModule, FormControl, FormGroup, RequiredValidator, FormArray, Validators } from '@angular/forms';
-import { iPOstStatus } from "../../interfaces/postStatus";
-import { iClient, iPostClient } from "../../interfaces/Client";
+import { iPostRequestStatus } from "../../interfaces/PostRequestStatus";
+import { iGetClientsForUser, iPostClient } from "../../interfaces/Client/Client";
 import { ConnectionService} from "../../utility/connection.service"
-import { api_endpoints } from "../../api_endpoints";
+import { api_endpoints } from "../../StaticObjects/api_endpoints";
 import { CommonModule, NgFor } from "@angular/common";
-import { iPartUser, iPostUser } from "../../interfaces/user"
-import { iClientTeamMapping, iPostTeam } from "../../interfaces/Team";
+import { iGetUserForTeamModal, iPostUser } from "../../interfaces/User/User"
+import { iClientTeamMapping, iPostTeam } from "../../interfaces/Team/Team";
 
 @Component({
     standalone: true,
@@ -16,7 +16,7 @@ import { iClientTeamMapping, iPostTeam } from "../../interfaces/Team";
 })
 export class AdminNavMenuHeaderComponent
 {
-    postStatus: iPOstStatus = {status: ""}
+    postStatus: iPostRequestStatus = {status: "", errorMessage: null}
 
     //Add Client
     AddClientFormGroup = new FormGroup({
@@ -24,8 +24,8 @@ export class AdminNavMenuHeaderComponent
     })
 
     //Add Team
-    clientList: iClient[] = []
-    userList: iPartUser[] = []
+    clientList: iGetClientsForUser[] = []
+    userList: iGetUserForTeamModal[] = []
     AddTeamFormGroup = new FormGroup({
         name: new FormControl('',[Validators.required]),
         chooseClient: new FormControl('',[Validators.required])
@@ -45,8 +45,8 @@ export class AdminNavMenuHeaderComponent
 
     async AddClient()
     {
-        let newClient: iPostClient = { name: this.AddClientFormGroup.value.name}
-        this.postStatus = (await this.connectionService.postItem(api_endpoints.AddClient,newClient)) as iPOstStatus
+        let newClient: iPostClient = { name: this.AddClientFormGroup.value.name || ""}
+        this.postStatus = (await this.connectionService.postItem(api_endpoints.AddClient,newClient)) as iPostRequestStatus
     }
 
     async AddTeam()
@@ -61,7 +61,7 @@ export class AdminNavMenuHeaderComponent
                 newTeam.userids?.push(temp.value)
             }
         }
-        this.postStatus = (await this.connectionService.postItem(api_endpoints.AddTeam,newTeam)) as iPOstStatus
+        this.postStatus = (await this.connectionService.postItem(api_endpoints.AddTeam,newTeam)) as iPostRequestStatus
     }
     async ShowAddTeamModal()
     {
@@ -104,7 +104,7 @@ export class AdminNavMenuHeaderComponent
             }
         }
 
-        this.postStatus = (await this.connectionService.postItem(api_endpoints.AddUser,postUser)) as iPOstStatus
+        this.postStatus = (await this.connectionService.postItem(api_endpoints.AddUser,postUser)) as iPostRequestStatus
         this.AddUserFormGroup.reset()
         for(let usercheckbox of usercheckboxes)
             {
@@ -120,5 +120,8 @@ export class AdminNavMenuHeaderComponent
         
     }
 
-
+    ClearResponseStatus()
+    {
+        this.postStatus.status = "";
+    }
 }

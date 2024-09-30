@@ -1,5 +1,13 @@
-<nav class="navbar text-white">
-      <button type="button" class="btn btn-ns" id="getCredentialsTabBtn" (click) = "GetCredentialsTab()">Credentials</button>
-      <button type="button" class="btn btn-ns" id="getCertificatesTabBtn" (click) = "GetCertificatesTab()">Certificates</button>
-      <button type="button" class="btn btn-ns" id="getPersonalTabBtn" (click) = "GetPersonalTab()">Personal</button>
-</nav>
+<div class="h-100 btn-ns">
+      <ul class="nav flex-column">
+            <li class="nav-item">
+                  <i class="btn btn-ns bi bi-key" (click) = "GetCredentialsTab()" style="font-size: 2em;" id="getCredentialsTabBtn" ></i>
+            </li>
+            <li class="nav-item">
+                  <button type="button" class="btn btn-ns" id="getCertificatesTabBtn" (click) = "GetCertificatesTab()"><img src="../../../assets/certificate32.png"></button>
+            </li>
+            <li class="nav-item">
+                  <i class="btn btn-ns bi bi-person" style="font-size: 2em;" id="getPersonalTabBtn" (click) = "GetPersonalTab()"></i>
+            </li>
+      </ul>
+</div>

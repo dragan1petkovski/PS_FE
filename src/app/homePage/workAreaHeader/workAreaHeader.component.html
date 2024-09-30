@@ -1,32 +1,33 @@
-
-<nav class="navbar navbar-default">
-    <div class="container-fluid">
+ <nav class="navbar navbar-default">
+    <div class="container-fluid pe-3 ps-3 m-0">
         <div>
             @if(selectTab.credentialsTab)
             {
                 <button class="btn btn-ns" (click) = "OpenModalWithData('AddCredential','teamList')">Add credential</button>&nbsp;
                 <button class="btn btn-ns" data-bs-toggle="modal" data-bs-target="#PasswordGenerator">Password Generator</button>&nbsp;
                 <button class="btn btn-ns" (click) = "ShowGiveCredentialInternallyModal()">Give Credential Internally</button>&nbsp;
-                <button class="btn btn-ns" data-bs-toggle="modal" data-bs-target="#GiveCredentialExternally">Give Credential Externally</button>
+                <!-- <button class="btn btn-ns" data-bs-toggle="modal" data-bs-target="#GiveCredentialExternally">Give Credential Externally</button> -->
             }
             @else if(selectTab.privateTab)
             {
                 <button class="btn btn-ns" data-bs-toggle="modal" data-bs-target="#AddFolder">Add Folder</button>&nbsp;
                 <button class="btn btn-ns" (click) = "OpenModalWithData('AddPersonalCredential','personalFolderList')">Add credential</button>&nbsp;
                 <button class="btn btn-ns" data-bs-toggle="modal" data-bs-target="#PasswordGenerator">Password Generator</button>&nbsp;
-                <button class="btn btn-ns" (click) = "ShowGiveCredentialInternallyModal()">Give Credential Internally</button>&nbsp;
-                <button class="btn btn-ns" data-bs-toggle="modal" data-bs-target="#GiveCredentialExternally">Give Credential Externally</button>
+                <button class="btn btn-ns" data-bs-toggle="modal" (click) = "OpenModalWithData('DeletePersonalFolderModal','personalFolderList')">Delete Personal Folder</button>
                 
             }
             @else if(selectTab.certificatesTab)
             {
-                <button class="btn btn-ns" data-bs-toggle="modal" data-bs-target="#UploadCertificate"> Upload Certificate</button>
+                <button class="btn btn-ns" (click) = "OpenModalWithData('UploadCertificate','teamList')"> Upload Certificate</button>
             }
 
         </div>
         <div>
-            <input type="text" placeholder="search" class="btn btn-ns text-start">&nbsp;
-            <i class="bi bi-search btn btn-ns"></i>
+            <form [formGroup]="searchForm">
+                <input type="text" placeholder="search" class="btn btn-ns text-start" formControlName="searchString">&nbsp;
+                <button class="btn btn-transparent" (click)="EmitSearchString()"><i class="bi bi-search btn btn-ns"></i></button>
+            </form>
+
         </div>
   
     </div>
@@ -43,94 +44,114 @@
           <h4 class="modal-title">Add Credential</h4> 
         </div> 
         <div class="modal-body"> 
-            @if(ResetFormGroup(responseStatus) === "OK")
+            @if(ResetFormGroup(responseStatus.status) === "OK")
             {
                 <div class="alert alert-success" role="alert">
                     Credential successfully added
                   </div>
             }
-            @else if (ResetFormGroup(responseStatus) === "KO")
+            @else if (ResetFormGroup(responseStatus.status) === "KO")
             {
                 <div class="alert alert-danger" role="alert">
-                    Failed to add credential
+                    Failed to add credential - {{this.responseStatus.errorMessage}}
                 </div>
             }
 
           <form [formGroup]="addCredentialForm" id="addCredentialForm" >
-              <div class="row m-2">
-                  <div class="col-4 text-end">
-                      <p>Domain Name <span *ngIf="addCredentialForm.controls.domain.invalid" class="text-danger">*</span></p>
-                  </div>
-                  <div class="col d-flex justify-content-center p-0">
-                      <input formControlName="domain" class="w-100 form-control" type="text">
-                  </div>
-              </div>
-  
-              <div class="row m-2">
-                  <div class="col-4 text-end">
-                      <p>Username <span *ngIf="addCredentialForm.controls.username.invalid" class="text-danger">*</span></p>
-                  </div>
-                  <div class="col d-flex justify-content-center p-0">
-                      <input formControlName="username" class="w-100 form-control" type="text">
-                  </div>
-                      
-              </div>
-              <div class="row m-2">
-                  <div class="col-4 text-end">
-                      <p>Password <span *ngIf="addCredentialForm.controls.password.invalid" class="text-danger">*</span></p>
-                  </div>
-                  <div class="col d-flex justify-content-center p-0">
-                      <input formControlName="password" class="w-100 form-control" type="password">
-                  </div>
-                      
-              </div>
-  
-              <div class="row m-2">
-                  <div class="col-4 text-end">
-                      <p>E-mail</p>
-                  </div>
-                  <div class="col d-flex justify-content-center p-0">
-                      <input formControlName="email" class="w-100 form-control" type="email" placeholder="mail@example.com">
-                  </div>
-                      
-              </div>
-              <div class="row m-2">
-                  <div class="col-4 text-end ">
-                      <p>Remote</p>
-                  </div>
-                  <div class="col d-flex justify-content-center p-0">
-                      <input formControlName="remote" class="w-100 form-control" type="text" placeholder="Enter username">
-                  </div>
-                      
-              </div>
-              <div class="row m-2">
-                  <div class="col-4 text-end ">
-                      <p>Note</p>
-                  </div>
-                  <div class="col d-flex justify-content-center p-0">
-                      <input formControlName="note" class="w-100 form-control" type="text" placeholder="Enter username">
-                  </div>
-                      
-              </div>
-            <div class="row m-2" >
-                <table>
-                    <thead>
-                        <tr>
-                            <td>Client Name</td>
-                            <td colspan="2">Team Name</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let item of itemList">
-                            <td style=" background-color: white !important;">{{item.clientname}}</td>
-                            <td style=" background-color: white !important;">{{item.teamname}}</td>
-                            <td class="nospaceincell" style=" background-color: white !important;" >
-                                <input type="checkbox" class="teamList" value='{"teamid": "{{item.teamid}}", "clientid": "{{item.clientid}}"}'>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                <div class="row m-2">
+                    <div class="col-4 text-end">
+                        <p>Domain Name <span *ngIf="addCredentialForm.controls.domain.invalid" class="text-danger">*</span></p>
+                    </div>
+                    <div class="col d-flex justify-content-center p-0">
+                        <input formControlName="domain" class="w-100 form-control" type="text">
+                    </div>
+                  
+                </div>
+                @if(this.addCredentialForm.controls.domain.invalid && this.addCredentialForm.controls.domain.dirty)
+                {
+                    <div class="row">
+                        <p class="text-danger text-center">{{this.AlphanumericStringVM("Domain")}}</p>
+                        
+                    </div>
+                }
+
+
+                <div class="row m-2">
+                    <div class="col-4 text-end">
+                        <p>Username <span *ngIf="addCredentialForm.controls.username.invalid" class="text-danger">*</span></p>
+                    </div>
+                    <div class="col d-flex justify-content-center p-0">
+                        <input formControlName="username" class="w-100 form-control" type="text">
+                    </div>
+                </div>
+                @if(this.addCredentialForm.controls.username.invalid && this.addCredentialForm.controls.username.dirty)
+                {
+                    <div class="row">
+                        <p class="text-danger text-center">{{this.AlphanumericStringVM("Username")}}</p>
+                    </div>
+                }
+                <div class="row m-2">
+                    <div class="col-4 text-end">
+                        <p>Password <span *ngIf="addCredentialForm.controls.password.invalid" class="text-danger">*</span></p>
+                    </div>
+                    <div class="col d-flex justify-content-center p-0">
+                        <input formControlName="password" class="w-100 form-control" type="password">
+                    </div>
+
+                </div>
+
+                <div class="row m-2">
+                    <div class="col-4 text-end">
+                        <p>E-mail <span *ngIf="addCredentialForm.controls.email.invalid" class="text-danger">*</span></p>
+                    </div>
+                    <div class="col d-flex justify-content-center p-0">
+                        <input formControlName="email" class="w-100 form-control" type="email" placeholder="mail@example.com">
+                    </div>
+
+                </div>
+                @if(this.addCredentialForm.controls.email.invalid && this.addCredentialForm.controls.email.dirty)
+                {
+                    <div class="row">
+                        <p class="text-danger text-center">{{this.emailVM}}</p>
+                    </div>
+                }
+                <div class="row m-2">
+                    <div class="col-4 text-end ">
+                        <p>Remote</p>
+                    </div>
+                    <div class="col d-flex justify-content-center p-0">
+                        <input formControlName="remote" class="w-100 form-control" type="text" placeholder="Enter username">
+                    </div>
+
+                </div>
+                <div class="row m-2">
+                    <div class="col-4 text-end ">
+                        <p>Note</p>
+                    </div>
+                    <div class="col d-flex justify-content-center p-0">
+                        <input formControlName="note" class="w-100 form-control" type="text" placeholder="Enter username">
+                    </div>
+
+                </div>
+                <div class="row m-2" >
+                    <table>
+                        <thead>
+                            <tr>
+                                <td>Client Name</td>
+                                <td colspan="2">Team Name</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of itemList">
+                                <td style=" background-color: white !important;">{{item.clientname}}</td>
+                                <td style=" background-color: white !important;">{{item.teamname}}</td>
+                                <td class="nospaceincell" style=" background-color: white !important;" >
+                                    <input type="checkbox" class="teamList" value='{"teamid": "{{item.teamid}}", "clientid": "{{item.clientid}}"}'>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
           </form>
     
         </div> 
@@ -143,13 +164,10 @@
       </div> 
     </div> 
   </div>
-
-
 }
 
 @else if(selectTab.privateTab)
 {
-
 <!-- Add Folder -->
 <div class="modal" tabindex="-1" role="dialog" id="AddFolder"> 
     <div class="modal-dialog modal-lg" role="document"> 
@@ -157,122 +175,202 @@
         <div class="modal-header btn-ns"> 
           <h4 class="modal-title">Add Folder</h4> 
         </div> 
-        <div class="modal-body"> 
+        <div class="modal-body">
+            @if(this.responseStatus.status === "OK")
+            {
+                <div class="alert alert-success" role="alert">
+                    Personal Folder successfully added
+                </div>
+            }
+            @else if(this.responseStatus.status === "KO")
+            {
+                <div class="alert alert-danger" role="alert">
+                    Personal Folder faild to add - {{this.responseStatus.errorMessage}}
+                </div>
+            }
             <form id="addPersonalFolder" [formGroup] = "addPersonalFolderFormGroup">
                 
                 <div class="row">
                     <div class="col-3 text-end">
-                        Enter folder name
+                        Enter folder name<span *ngIf="this.addPersonalFolderFormGroup.controls.addPersonalFolder.invalid" class="text-danger">*</span>
                     </div>
                     <div class="col-9">
                         <input type="text" formControlName = "addPersonalFolder" class="form-control">
                     </div>
                 </div>
+                @if(this.addPersonalFolderFormGroup.controls.addPersonalFolder.invalid && this.addPersonalFolderFormGroup.controls.addPersonalFolder.dirty)
+                {
+                    <div class="row">
+                        <p class="text-danger text-center">Name must be alphanumeric string</p>
+                    </div>  
+                }
             </form>
     
         </div> 
         <div class="modal-footer"> 
             <input type="submit" from="addPersonalFolder" class="btn btn-ns" value="Add Folder" [disabled]="!addPersonalFolderFormGroup.valid" (click) = "AddPersonalFolderByUserId()">
-          <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
+          <button type="button" class="btn btn-danger" (click) = "CloseModal('AddFolder')"> 
             Close 
           </button> 
         </div> 
       </div> 
     </div> 
-    </div>
+</div>
 
-      <!-- Add Credential -->
-  <div class="modal" tabindex="-1" role="dialog" id="AddPersonalCredential"> 
-    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document"> 
-      <div class="modal-content"> 
-        <div class="modal-header btn-ns"> 
-          <h4 class="modal-title">Add Credential</h4> 
-        </div> 
-        <div class="modal-body"> 
-            @if(ResetFormGroup(responseStatus) === "OK")
-            {
+<!-- Add Personal Credential -->
+<div class="modal" tabindex="-1" role="dialog" id="AddPersonalCredential"> 
+  <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document"> 
+    <div class="modal-content"> 
+      <div class="modal-header btn-ns"> 
+        <h4 class="modal-title">Add Credential</h4> 
+      </div> 
+      <div class="modal-body"> 
+          @if(ResetFormGroup(responseStatus.status) === "OK")
+          {
                 <div class="alert alert-success" role="alert">
                     Credential successfully added
                   </div>
-            }
-            @else if (ResetFormGroup(responseStatus) === "KO")
-            {
+          }
+          @else if (ResetFormGroup(responseStatus.status) === "KO")
+          {
                 <div class="alert alert-danger" role="alert">
-                    Failed to add credential
+                    Failed to add credential - {{this.responseStatus.errorMessage}}
                 </div>
-            }
-
-          <form [formGroup]="addCredentialForm">
-            <div class="row m-2">
-                <div class="col-4 text-end">
-                    <p>Domain Name <span *ngIf="addCredentialForm.controls.domain.invalid" class="text-danger">*</span></p>
-                </div>
-                <div class="col d-flex justify-content-center p-0">
-                    <input formControlName="domain" class="w-100 form-control" type="text">
-                </div>
-            </div>
-
-            <div class="row m-2">
-                <div class="col-4 text-end">
-                    <p>Username <span *ngIf="addCredentialForm.controls.username.invalid" class="text-danger">*</span></p>
-                </div>
-                <div class="col d-flex justify-content-center p-0">
-                    <input formControlName="username" class="w-100 form-control" type="text">
-                </div>
-                    
-            </div>
-            <div class="row m-2">
-                <div class="col-4 text-end">
-                    <p>Password <span *ngIf="addCredentialForm.controls.password.invalid" class="text-danger">*</span></p>
-                </div>
-                <div class="col d-flex justify-content-center p-0">
-                    <input formControlName="password" class="w-100 form-control" type="password">
-                </div>
-                    
-            </div>
-
-            <div class="row m-2">
-                <div class="col-4 text-end">
-                    <p>E-mail</p>
-                </div>
-                <div class="col d-flex justify-content-center p-0">
-                    <input formControlName="email" class="w-100 form-control" type="email" placeholder="mail@example.com">
-                </div>
-                    
-            </div>
-            <div class="row m-2">
-                <div class="col-4 text-end ">
-                    <p>Remote</p>
-                </div>
-                <div class="col d-flex justify-content-center p-0">
-                    <input formControlName="remote" class="w-100 form-control" type="text" placeholder="Enter username">
-                </div>
-                    
-            </div>
-            <div class="row m-2">
-                <div class="col-4 text-end ">
-                    <p>Note</p>
-                </div>
-                <div class="col d-flex justify-content-center p-0">
-                    <input formControlName="note" class="w-100 form-control" type="text" placeholder="Enter username">
-                </div>
-                    
-            </div>
-        
-            <div class="row m-2" *ngFor="let item of itemList">
+          }
+        <form [formGroup]="addCredentialForm">
+          <div class="row m-2">
+              <div class="col-4 text-end">
+                  <p>Domain Name <span *ngIf="addCredentialForm.controls.domain.invalid" class="text-danger">*</span></p>
+              </div>
+              <div class="col d-flex justify-content-center p-0">
+                  <input formControlName="domain" class="w-100 form-control" type="text">
+              </div>
+          </div>
+          @if(this.addCredentialForm.controls.domain.invalid && this.addCredentialForm.controls.domain.dirty)
+          {
+              <div class="row">
+                  <p class="text-danger text-center">{{this.AlphanumericStringVM("Domain")}}</p>
+              </div>
+          }
+          <div class="row m-2">
+              <div class="col-4 text-end">
+                  <p>Username <span *ngIf="addCredentialForm.controls.username.invalid" class="text-danger">*</span></p>
+              </div>
+              <div class="col d-flex justify-content-center p-0">
+                  <input formControlName="username" class="w-100 form-control" type="text">
+              </div>
+                  
+          </div>
+          @if(this.addCredentialForm.controls.username.invalid && this.addCredentialForm.controls.username.dirty)
+          {
+              <div class="row">
+                  <p class="text-danger text-center">{{this.AlphanumericStringVM("Username")}}</p>
+              </div>
+          }
+          <div class="row m-2">
+              <div class="col-4 text-end">
+                  <p>Password <span *ngIf="addCredentialForm.controls.password.invalid" class="text-danger">*</span></p>
+              </div>
+              <div class="col d-flex justify-content-center p-0">
+                  <input formControlName="password" class="w-100 form-control" type="password">
+              </div>
+                  
+          </div>
+          <div class="row">
+              <div class="col-4 text-end">
+                  <p>E-mail</p>
+              </div>
+              <div class="col d-flex justify-content-center p-0">
+                  <input formControlName="email" class="w-100 form-control" type="email" placeholder="mail@example.com">
+              </div>
+                  
+          </div>
+          @if(this.addCredentialForm.controls.email.invalid && this.addCredentialForm.controls.email.dirty)
+          {
+              <div class="row">
+                  <p class="text-danger text-center">{{this.emailVM}}</p>
+              </div>
+          }
+          
+          <div class="row m-2">
+              <div class="col-4 text-end ">
+                  <p>Remote</p>
+              </div>
+              <div class="col d-flex justify-content-center p-0">
+                  <input formControlName="remote" class="w-100 form-control" type="text" placeholder="Enter username">
+              </div>
+                  
+          </div>
+          <div class="row m-2">
+              <div class="col-4 text-end ">
+                  <p>Note</p>
+              </div>
+              <div class="col d-flex justify-content-center p-0">
+                  <input formControlName="note" class="w-100 form-control" type="text" placeholder="Enter username">
+              </div>
+                  
+          </div>
+      
+          <div class="row m-2" *ngFor="let item of itemList">
                 <div class="col-4 text-end ">
                     <p>{{item.name}}</p>
                 </div>
                 <div class="col d-flex justify-content-start p-0">
                     <input type="radio"  name="personalFolder" class="persoanlFolderList" id={{item.id}} value={{item.id}}>
                 </div>
+          </div>
+        </form>
+  
+      </div> 
+      <div class="modal-footer"> 
+        <input type="submit" class="btn btn-ns"[disabled]="!addCredentialForm.valid" value="Add Credential" (click) = "AddPersonalCredential()">
+        <button type="button" class="btn btn-danger" (click) = "CloseModal('AddPersonalCredential')"> 
+          Close 
+        </button> 
+      </div> 
+    </div> 
+  </div> 
+</div>
+
+
+<!-- Delete Personal Folder -->
+<div class="modal" tabindex="-1" role="dialog" id="DeletePersonalFolderModal"> 
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document"> 
+      <div class="modal-content"> 
+        <div class="modal-header btn-ns"> 
+          <h4 class="modal-title">Add Credential</h4> 
+        </div> 
+        <div class="modal-body"> 
+            @if(responseStatus.status === "OK")
+            {
+                  <div class="alert alert-success" role="alert">
+                      Successfully Delete Personal Folder 
+                    </div>
+            }
+            @else if (responseStatus.status === "KO")
+            {
+                  <div class="alert alert-danger" role="alert">
+                      Failed to add credential - {{this.responseStatus.errorMessage}}
+                  </div>
+            }
+            @if(this.warningMessage != "")
+            {
+                <p class="text-danger">{{this.warningMessage}}</p>
+            } 
+            <div class="row m-2" *ngFor="let item of itemList">
+                  <div class="col-4 text-end ">
+                      <p>{{item.name}}</p>
+                  </div>
+                  <div class="col d-flex justify-content-start p-0">
+                      <input type="checkbox"  name="deletePersonalFolder" class="deletepersoanlFolderList" id={{item.id}} value={{item.id}}>
+                  </div>
             </div>
-          </form>
+
     
         </div> 
         <div class="modal-footer"> 
-          <input type="submit" class="btn btn-ns"[disabled]="!addCredentialForm.valid" value="Add Credential" (click) = "AddPersonalCredential()">
-          <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
+          <input type="submit" class="btn btn-ns" value="Delete Personal Folder" (click) = "DeletePersonalFolder()">
+          <button type="button" class="btn btn-danger" (click) = "CloseModal('DeletePersonalFolderModal')"> 
             Close 
           </button> 
         </div> 
@@ -284,7 +382,8 @@
 
 @else if(selectTab.certificatesTab)
 {
-<!-- Upload Certificates -->
+
+    <!-- Upload Certificates -->
 <div class="modal" tabindex="-1" role="dialog" id="UploadCertificate"> 
     <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document"> 
       <div class="modal-content"> 
@@ -292,29 +391,69 @@
           <h4 class="modal-title">Upload Certificate</h4> 
         </div> 
         <div class="modal-body"> 
+            @if(responseStatus.status === "OK")
+            {
+                  <div class="alert alert-success" role="alert">
+                      Successfully uploaded certificate
+                    </div>
+            }
+            @else if (responseStatus.status === "KO")
+            {
+                  <div class="alert alert-danger" role="alert">
+                      Failed to upload certificate - {{this.responseStatus}}
+                  </div>
+            }
+
             <form id="_uploadCertificate">
                 <div class="row">
                     <div class="col-3 text-end">
-                        Uplaod Certificate
+                        Types of Certificates
                     </div>
-                    <div class="col-9">
-                        <input type="file" class="form-control" id="uploadcertificate">
+                    <div class="col-3">
+                        <label for="privatekey">
+                            private key<br>PFX, P12
+                        </label>
+                        <input type="radio" id="privatekey" name="certtype" value="privatekey" (click) = "ChooseUploadCertificateType()">
+                    </div>
+                    <div class="col-3">
+                        <label for="publicprivatekey">
+                            public private key<br>PEM
+                        </label>
+                        <input type="radio" id="publicprivatekey" name="certtype" value="publicprivatekey" (click) = "ChooseUploadCertificateType()">
                     </div>
                 </div>
-                <div class="row mt-3">
-                    <div class="col-3 text-end">
-                        Certificate Password
-                    </div>
-                    <div class="col-9">
-                        <input type="password" class="form-control" id="certificatepassword">
-                    </div>
+                <div class="row" id="certtypeinput">
+
                 </div>
+
+
+                <div class="row m-2" >
+                    <table>
+                        <thead>
+                            <tr>
+                                <td>Client Name</td>
+                                <td colspan="2">Team Name</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of itemList">
+                                <td style=" background-color: white !important;">{{item.clientname}}</td>
+                                <td style=" background-color: white !important;">{{item.teamname}}</td>
+                                <td class="nospaceincell" style=" background-color: white !important;" >
+                                    <input type="checkbox" name= "team" class="teamList" value='{"teamid": "{{item.teamid}}", "clientid": "{{item.clientid}}"}'>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
             </form>
     
         </div> 
-        <div class="modal-footer"> 
-            <input type="submit" class="btn btn-ns" value="Upload Certificate">
-            <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
+        <div class="modal-footer">
+            <!-- <input type="submit" form="_uploadCertificate" value="Upload Certificate" class="btn btn-ns" /> --> 
+            <button type="submit" class="btn btn-ns" (click) = "UploadCertificate()">Upload Certificate</button>
+            <button type="button" class="btn btn-danger" (click) = "CloseModal('UploadCertificate')"> 
               Close 
             </button> 
         </div> 
@@ -338,125 +477,149 @@ id="GiveCredentialInternally">
     </div> 
     <div class="modal-body"> 
 
-        @if(ResetFormGroup(responseStatus) === "OK")
+        @if(ResetFormGroup(responseStatus.status) === "OK")
         {
             <div class="alert alert-success" role="alert">
                 Successfully giving credential
               </div>
         }
-        @else if (ResetFormGroup(responseStatus) === "KO")
+        @else if (ResetFormGroup(responseStatus.status) === "KO")
         {
             <div class="alert alert-danger" role="alert">
-                Failed to give credential
+                Failed to give credential - {{this.responseStatus.errorMessage}}
             </div>
         }
 
       <form [formGroup]="giveCredentialInternallyForm">
-          <div class="row m-2">
-              <div class="col-4 text-end">
-                  <p>Domain Name</p>
-              </div>
-              <div class="col d-flex justify-content-center p-0">
-                  <input formControlName="domain" class="w-100 form-control" type="text" id="domain">
-              </div>
-          </div>
-
-
-          <div class="row m-2">
-              <div class="col-4 text-end">
-                  <p>Username</p>
-              </div>
-              <div class="col d-flex justify-content-center p-0">
-                  <input formControlName="username" class="w-100 form-control" type="text">
-              </div>
-                  
-          </div>
-          <div class="row m-2">
-              <div class="col-4 text-end">
-                  <p>Password</p>
-              </div>
-              <div class="col d-flex justify-content-center p-0">
-                  <input formControlName="password" class="w-100 form-control" type="password">
-              </div>
-                  
-          </div>
-          <div class="row m-2">
-              <div class="col-4 text-end">
-                  <p>E-mail</p>
-              </div>
-              <div class="col d-flex justify-content-center p-0">
-                  <input formControlName="email" class="w-100 form-control" type="email" placeholder="mail@example.com">
-              </div>
-                  
-          </div>
-          <div class="row m-2">
-              <div class="col-4 text-end ">
-                  <p>Remote Location</p>
-              </div>
-              <div class="col d-flex justify-content-center p-0">
-                  <input formControlName="remote" class="w-100 form-control" type="text">
-              </div>
-                  
-          </div>
-
-          <div class="row m-2">
-            <div class="col-4 text-end">
-                <p>Note</p>
+            <div class="row m-2 mb-0">
+                <div class="col-4 text-end">
+                    <p>Domain Name<span class="text-danger" *ngIf="this.giveCredentialExternallyForm.controls.domain.invalid">*</span></p>
+                </div>
+                <div class="col d-flex justify-content-center p-0">
+                    <input formControlName="domain" class="w-100 form-control" type="text" id="domain">
+                </div>
             </div>
-            <div class="col p-0">
-                <textarea class="form-control" formControlName="note"></textarea>
+            @if(this.addCredentialForm.controls.domain.invalid && this.addCredentialForm.controls.domain.dirty)
+            {
+            <div class="row">
+                <p class="text-danger text-center">{{this.AlphanumericStringVM("Domain")}}</p>
             </div>
-          </div>
+            }
 
-          <div class="row">
-            <div class="col">
-                <table>
-                    <thead>
-                        <tr>
-                            <td>Team Name</td>
-                            <td colspan="2">Client Name</td>
-                            
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr  *ngFor=" let team of clientTeamMappingList">
-                            <td style=" background-color: white !important;">{{team.teamname}}</td>
-                            <td style=" background-color: white !important;">{{team.clientname}}</td>
-                            <td style=" background-color: white !important;" class="nospaceincell">
-                                <input type="checkbox" value={{team.teamid}} class="gc_teamclientmappingcheckbox">
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+
+            <div class="row m-2">
+                <div class="col-4 text-end">
+                    <p>Username<span class="text-danger" *ngIf="this.giveCredentialExternallyForm.controls.username.invalid">*</span></p>
+                </div>
+                <div class="col d-flex justify-content-center p-0">
+                    <input formControlName="username" class="w-100 form-control" type="text">
+                </div>
 
             </div>
-            <div class="col">
-                <table>
-                    <thead>
-                        <tr>
-                            <td>Fullname</td>
-                            <td colspan="2">Username</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let user of allPartUserList">
-                            <td style=" background-color: white !important;">{{user.fullname}}</td>
-                            <td style=" background-color: white !important;">{{user.username}}</td>
-                            <td class="nospaceincell" style=" background-color: white !important;" >
-                                <input type="checkbox" value={{user.id}} class="gc_usercheckbox">
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            @if(this.addCredentialForm.controls.username.invalid && this.addCredentialForm.controls.username.dirty)
+            {
+            <div class="row">
+                <p class="text-danger text-center">{{this.AlphanumericStringVM("Username")}}</p>
             </div>
-          </div>
+            }
+
+            <div class="row">
+                <div class="col-4 text-end">
+                    <p>Password<span class="text-danger" *ngIf="this.giveCredentialExternallyForm.controls.password.invalid">*</span></p>
+                </div>
+                <div class="col d-flex justify-content-center p-0">
+                    <input formControlName="password" class="w-100 form-control" type="password">
+                </div>
+
+            </div>
+
+
+
+            <div class="row m-2">
+                <div class="col-4 text-end">
+                    <p>E-mail</p>
+                </div>
+                <div class="col d-flex justify-content-center p-0">
+                    <input formControlName="email" class="w-100 form-control" type="email" placeholder="mail@example.com">
+                </div>
+
+            </div>
+            @if(this.addCredentialForm.controls.email.invalid && this.addCredentialForm.controls.email.dirty)
+            {
+            <div class="row">
+                <p class="text-danger text-center">{{this.emailVM}}</p>
+            </div>
+            }
+
+
+            <div class="row m-2">
+                <div class="col-4 text-end ">
+                    <p>Remote Location</p>
+                </div>
+                <div class="col d-flex justify-content-center p-0">
+                    <input formControlName="remote" class="w-100 form-control" type="text">
+                </div>
+
+            </div>
+
+            <div class="row m-2">
+              <div class="col-4 text-end">
+                  <p>Note</p>
+              </div>
+              <div class="col p-0">
+                  <textarea class="form-control" formControlName="note"></textarea>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col">
+                  <table>
+                      <thead>
+                          <tr>
+                              <td>Team Name</td>
+                              <td colspan="2">Client Name</td>
+
+                          </tr>
+                      </thead>
+                      <tbody>
+                          <tr  *ngFor=" let team of clientTeamMappingList">
+                              <td style=" background-color: white !important;">{{team.teamname}}</td>
+                              <td style=" background-color: white !important;">{{team.clientname}}</td>
+                              <td style=" background-color: white !important;" class="nospaceincell">
+                                  <input type="checkbox" value={{team.teamid}} class="gc_teamclientmappingcheckbox">
+                              </td>
+                          </tr>
+                      </tbody>
+                  </table>
+
+              </div>
+              <div class="col">
+                  <table>
+                      <thead>
+                          <tr>
+                              <td>Fullname</td>
+                              <td colspan="2">Username</td>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          <tr *ngFor="let user of allPartUserList">
+                              <td style=" background-color: white !important;">{{user.fullname}}</td>
+                              <td style=" background-color: white !important;">{{user.username}}</td>
+                              <td class="nospaceincell" style=" background-color: white !important;" >
+                                  <input type="checkbox" value={{user.id}} class="gc_usercheckbox">
+                              </td>
+                          </tr>
+                      </tbody>
+                  </table>
+              </div>
+            </div>
 
       </form>
 
     </div> 
     <div class="modal-footer"> 
         <input type="submit" value="Give Credential" class="btn btn-ns" [disabled]="!giveCredentialInternallyForm.valid" (click) = "GiveCredentialInternally()">
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
+        <button type="button" class="btn btn-danger" (click) = "CloseModal('GiveCredentialInternally')"> 
             Close 
         </button> 
     </div> 
@@ -557,12 +720,18 @@ id="GiveCredentialExternally">
             <form [formGroup]="passwordGeneratorFormGroup">
                 <div class="row">
                     <div class="col">
-                        <p>Enter length of password</p>
+                        <p>Enter length of password <span *ngIf="passwordGeneratorFormGroup.controls.passwordlength.invalid" class="text-danger">*</span></p>
                     </div>
                     <div class="col">
                         <input type="number" id="passwordLength" formControlName="passwordlength">
                     </div>
                 </div>
+                @if(this.passwordGeneratorFormGroup.controls.passwordlength.invalid && this.passwordGeneratorFormGroup.controls.passwordlength.dirty)
+                {
+                    <div class="row">
+                        <p class="text-center text-danger">{{this.passwordVM}}</p>
+                    </div>
+                }
         
                 <div class="row">
                     <div class="col">

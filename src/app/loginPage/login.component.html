@@ -1,6 +1,11 @@
 <div class="row p-0 m-3">
-    
-    <form [formGroup]="loginGroup" (submit)="TestLogin()">
+    @if(this.loginStatusFailure === "Fail")
+    {
+        <div class="alert alert-danger">
+            <strong>Login Failed!</strong> Incorrect Username or Password.
+          </div>
+    }
+    <form [formGroup]="loginGroup" (submit)="SignIn()">
         <div class="row justify-content-center m-3">
             <div class="col-4 justify-content-center p-0 text-center">
                 <img src="../../assets/TestLogo1.png">

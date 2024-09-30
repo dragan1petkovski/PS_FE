@@ -1,4 +1,4 @@
-<nav class="navbar navbar-default">
+<nav class="navbar navbar-default pt-0">
     <button type="button" class="btn btn-ns" data-bs-toggle="modal" data-bs-target="#AddClientModal">Add Client</button>
     <button type="button" class="btn btn-ns" (click) = "ShowAddTeamModal()">Add Team</button>
     <button type="button" class="btn btn-ns" (click) = "ShowAddUserModal()">Add User</button>
@@ -39,7 +39,7 @@
       </div> 
       <div class="modal-footer"> 
         <input type="submit" class="btn-ns btn" from="AddClientForm" value="Add Client" (click) = "AddClient()" [disabled] = "!AddClientFormGroup.valid">
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" (click) = "ClearResponseStatus()"> 
           Close 
         </button> 
       </div> 
@@ -113,7 +113,7 @@
     </div> 
     <div class="modal-footer">
       <input  type="submit" form="AddTeamForm" class="btn btn-ns" value="Add Team" (click) = "AddTeam()" [disabled]="!AddTeamFormGroup.valid">
-      <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button> 
+      <button type="button" class="btn btn-danger" data-bs-dismiss="modal" (click) = "ClearResponseStatus()" >Close</button> 
     </div> 
   </div> 
 </div> 
@@ -203,7 +203,7 @@
     </div> 
     <div class="modal-footer"> 
       <input type="submit" value="Add User" class="btn btn-ns" [disabled]= "!AddUserFormGroup.valid" (click) = "AddUser()" >
-      <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
+      <button type="button" class="btn btn-danger" data-bs-dismiss="modal" (click) = "ClearResponseStatus()" > 
         Close 
       </button> 
     </div> 

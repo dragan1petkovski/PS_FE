@@ -1,5 +1,5 @@
-<div class="p-3">
-    <table class="m-0 p-0 table-ns">
+<div class="container-fluid p-3 pt-0">
+    <table class="m-0 p-0 table-ns w-100">
     @if(currentSelectedTab.clientTab)
     {
         <thead>
@@ -12,11 +12,11 @@
         </thead>
         <tbody class="bg-white">
             <tr *ngFor="let item of tableData.clients" style="background-color: #15dffd !important;">
-                <td class="bg-white" style="background-color: white !important;">{{item.name}}</td>
-                <td class="bg-white" style="background-color: white !important;">{{item.createdate}}</td>
-                <td class="bg-white" style="background-color: white !important;">{{item.updatedate}}</td>
+                <td style="background-color: white !important;">{{item.name}}</td>
+                <td class="nospaceincell"  style="background-color: white !important;">{{item.createdate}}</td>
+                <td class="nospaceincell" style="background-color: white !important;">{{item.updatedate}}</td>
                 <td class="nospaceincell"  style="background-color: white !important;">
-                    <i id="{{item.id}}-edit" class="bi bi-pencil" (click) = "OpenClientModal(item.id)"></i>&nbsp;
+                    <i class="bi bi-pencil" (click) = "OpenClientModal(item.id)"></i>&nbsp;
                     <i id="{{item.id}}-delete" class="bi bi-trash" (click) = "DeleteModal(item.id,item.name,'client')"></i>
                 </td>
             </tr>
@@ -38,16 +38,20 @@
     </thead>
     <tbody>
         <tr *ngFor="let item of tableData.users" style="background-color: #15dffd !important;">
+          @if(this.GetUserId() !== item.id)
+          {
             <td style="background-color: white !important;">{{item.firstname}}</td>
             <td style="background-color: white !important;">{{item.lastname}}</td>
             <td style="background-color: white !important;">{{item.email}}</td>
             <td style="background-color: white !important;">{{item.username}}</td>
-            <td style="background-color: white !important;">{{item.createdate}}</td>
-            <td style="background-color: white !important;">{{item.updatedate}}</td>
+            <td style="background-color: white !important;" class="nospaceincell">{{item.createdate}}</td>
+            <td style="background-color: white !important;" class="nospaceincell">{{item.updatedate}}</td>
             <td class="nospaceincell" style="background-color: white !important;">
                 <i id="{{item.id}}-edit" class="bi bi-pencil" (click) = "OpenUserModal(item.id)"></i>&nbsp;
                 <i id="{{item.id}}-delete" class="bi bi-trash"(click) = "DeleteModal(item.id,item.username,'user')"></i>
             </td>
+          }
+
         </tr>
     </tbody>
     }
@@ -65,8 +69,8 @@
             <tr *ngFor="let item of tableData.teams" style="background-color: #15dffd !important;">
                 <td style="background-color: white !important;">{{item.name}}</td>
                 <td style="background-color: white !important;">{{item.clientname}}</td>
-                <td style="background-color: white !important;">{{item.createdate}}</td>
-                <td style="background-color: white !important;">{{item.updatedate}}</td>
+                <td style="background-color: white !important;" class="nospaceincell">{{item.createdate}}</td>
+                <td style="background-color: white !important;" class="nospaceincell">{{item.updatedate}}</td>
                 <td class="nospaceincell" style="background-color: white !important;">
                     <i id="{{item.id}}-edit" class="bi bi-pencil" (click)= "OpenTeamModal(item.id)"></i>&nbsp;
                     <i id="{{item.id}}-delete" class="bi bi-trash"(click) = "DeleteModal(item.id,item.name,'team')"></i>
@@ -77,233 +81,201 @@
     </table>
 </div>
 
-  <!-- Add Client -->
-  <div class="modal" tabindex="-1" role="dialog" id="EditClientModal"> 
-  <div class="modal-dialog modal-lg" role="document"> 
-    <div class="modal-content"> 
-      <div class="modal-header"> 
-        <h4 class="modal-title">Add Client</h4> 
-      </div> 
-      <div class="modal-body"> 
-        <form id="AddClientForm">
-          <div class="row">
-            <div class="col-3 text-end">
-              <p>name of client</p>
-            </div>
-            <div class="col-9">
-              <input type="text" class="form-control">
-            </div>
-          </div>
-
-        </form>
-
-      </div> 
-      <div class="modal-footer"> 
-        <input type="submit" class="btn-ns btn" from="AddClientForm" value="Add Team">
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
-          Close 
-        </button> 
-      </div> 
-    </div> 
-  </div> 
-</div>
-
-<!-- Add Team -->
+<!-- Edit Team -->
 <div class="modal" tabindex="-1" role="dialog" id="EditTeamModal"> 
 <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document"> 
   <div class="modal-content"> 
     <div class="modal-header"> 
-      <h4 class="modal-title">Add Team</h4> 
+      <h4 class="modal-title">Edit Team</h4> 
     </div> 
     <div class="modal-body">
-      <form id="AddTeamForm">
-        <div class="row mb-3 p-3" >
-          <select value="Choose client" class="form-control">
-            <option selected disabled hidden>Choose client</option>
-            <option>Client1</option>
-            <option>Client2</option>
-            <option>Client3</option>
-            <option>Client4</option>
-          </select>
+      @if(this.postRequestStatus.status === "OK")
+      {
+        <div class="alert alert-success">
+          <p>Update is successful</p>
         </div>
+      }
+      @else if(this.postRequestStatus.status === "KO")
+      {
+        <div class="alert alert-danger">
+          <p>Update Failed</p>
+        </div>
+      }
+      <form id="UpdateTeamForm" [formGroup]="this.updateTeamForm">
+        <input type="hidden" value={{this.updateTeamForm.value.id}} >
         <div class="row">
-          <div class="col-3 text-end">
-            <p>Enter Team name</p>
+          <div class="col-3">
+            <p class="text-end">Name<span class="text-danger" *ngIf="this.updateTeamForm.controls.name.invalid">*</span></p>
           </div>
           <div class="col-9">
-            <input type="text" class="form-control">
+            <input type="text" class="form-control" formControlName="name" value={{this.updateTeamForm.value.name}}>
           </div>
         </div>
-        <div class="row">
-          <div class="row mt-3">
-            <div class="col-9 text-end">
-              <p>User1</p>
-            </div>
-            <div class="col-3">
-              <input type="checkbox">
-            </div>
+        @if(this.updateTeamForm.controls.name.dirty && this.updateTeamForm.controls.name.invalid)
+        {
+          <div class="row">
+            <p class="text-center text-danger">{{this.AlphanumericStringVM("Name")}}</p>
           </div>
-          <div class="row mt-3">
-            <div class="col-9 text-end">
-              <p>User2</p>
-            </div>
-            <div class="col-3">
-              <input type="checkbox">
-            </div>
-          </div>
-          <div class="row mt-3">
-            <div class="col-9 text-end">
-              <p>User3</p>
-            </div>
-            <div class="col-3">
-              <input type="checkbox">
-            </div>
-          </div>
-        </div>
+        }
+
+
+        <table class="table-ns p-0 w-100 mt-2">
+          <thead>
+            <tr>
+              <td>Full Name</td>
+              <td colspan="2">Username</td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of this.allUserList">
+              <td style="background-color: white !important;">{{item.fullname}}</td>
+              <td style="background-color: white !important;">{{item.username}}</td>
+              @if(this.FindUser(this.teamUserList,item))
+              {
+                <td style="background-color: white !important;" class="nospaceincell">
+                  <input type="checkbox" class="teamcheckbox" value={{item.id}} checked>
+                </td>
+              }
+              @else
+              {
+                <td style="background-color: white !important;" class="nospaceincell">
+                  <input type="checkbox" class="teamcheckbox" value={{item.id}}>
+                </td>
+              }
+            </tr>
+          </tbody>
+        </table>
       </form>
 
 
     </div> 
     <div class="modal-footer">
-      <input  type="submit" form="AddTeamForm" class="btn btn-ns" value="Add Team">
+      <input  type="submit" form="UpdateTeamForm" class="btn btn-ns" value="Update Team" (click) = "UpdateTeam()" >
       <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button> 
     </div> 
   </div> 
 </div> 
 </div>
 
-<!-- Add User -->
+<!-- Edit User -->
 <div class="modal" tabindex="-1" role="dialog" id="EditUserModal"> 
 <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document"> 
   <div class="modal-content"> 
     <div class="modal-header"> 
-      <h4 class="modal-title">AddUser</h4> 
+      <h4 class="modal-title">Edit User</h4> 
     </div> 
     <div class="modal-body">
+      @if(this.postRequestStatus.status === "OK")
+      {
+        <div class="alert alert-success">
+          <p>Update is successful</p>
+        </div>
+      }
+      @else if(this.postRequestStatus.status === "KO")
+      {
+        <div class="alert alert-danger">
+          <p>Update Failed</p>
+        </div>
+      }
 
-      <div class="row mt-3">
-        <div class="col-3 text-end">
-          <p>Enter first name</p>
-        </div>
-        <div class="col-9">
-          <input type="text" class="form-control">
-        </div>
-      </div>
-      
-      <div class="row mt-3">
-        <div class="col-3 text-end">
-          <p>Enter last name</p>
-        </div>
-        <div class="col-9">
-          <input type="text" class="form-control">
-        </div>
-      </div>
-      
-      <div class="row mt-3">
-        <div class="col-3 text-end">
-          <p>Enter email</p>
-        </div>
-        <div class="col-9">
-          <input type="email" class="form-control">
-        </div>
-      </div>
-      
-      <div class="row mt-3">
-        <div class="col-3 text-end">
-          <p>Enter username</p>
-        </div>
-        <div class="col-9">
-          <input type="text" class="form-control">
-        </div>
-      </div>
-      
-      <div class="row mt-3">
-        <div class="col-3 text-end">
-          <p>Enter Password</p>
-        </div>
-        <div class="col-9">
-          <input type="password" class="form-control">
-        </div>
-      </div>
-      
-      <div class="row mt-3" id="AddToTeams">
-        <div class="row mb-3">
-          <div class="col" >
-            <select value="Choose client" class="form-control">
-              <option selected disabled hidden>Choose client</option>
-              <option>Client1</option>
-              <option>Client2</option>
-              <option>Client3</option>
-              <option>Client4</option>
-            </select>
+      <form [formGroup]="updateUserForm">
+        <div class="row mt-3">
+          <div class="col-3 text-end">
+            <p>Enter first name<span class="text-center, text-danger" *ngIf="this.updateUserForm.controls.firstname.invalid">*</span></p>
           </div>
-          <div class="col" >
-            <select value="Choose Team" class="form-control">
-              <option selected disabled hidden>Choose Team</option>
-              <option>Team1</option>
-              <option>Team2</option>
-              <option>Team3</option>
-              <option>Team4</option>
-            </select>
-          </div>
-          <div class="col">
-            <button class="btn btn-ns">Add to Team</button>
+          <div class="col-9">
+            <input type="text" class="form-control" value={{this.updateUserobj.firstname}} formControlName="firstname">
           </div>
         </div>
-
-        <div class="row mb-3">
-          <div class="col" >
-            <select value="Choose client" class="form-control">
-              <option selected disabled hidden>Choose client</option>
-              <option>Client1</option>
-              <option>Client2</option>
-              <option>Client3</option>
-              <option>Client4</option>
-            </select>
+        @if(this.updateUserForm.controls.firstname.dirty && this.updateUserForm.controls.firstname.invalid)
+        {
+          <div class="row">
+            <p class="text-center text-danger">{{this.AlphanumericStringVM("First name")}}</p>
           </div>
-          <div class="col" >
-            <select value="Choose Team" class="form-control">
-              <option selected disabled hidden>Choose Team</option>
-              <option>Team1</option>
-              <option>Team2</option>
-              <option>Team3</option>
-              <option>Team4</option>
-            </select>
-          </div>
-          <div class="col">
-            <button class="btn btn-ns">Add to Team</button>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col" >
-            <select value="Choose client" class="form-control">
-              <option selected disabled hidden>Choose client</option>
-              <option>Client1</option>
-              <option>Client2</option>
-              <option>Client3</option>
-              <option>Client4</option>
-            </select>
-          </div>
-          <div class="col" >
-            <select value="Choose Team" class="form-control">
-              <option selected disabled hidden>Choose Team</option>
-              <option>Team1</option>
-              <option>Team2</option>
-              <option>Team3</option>
-              <option>Team4</option>
-            </select>
-          </div>
-          <div class="col">
-            <button class="btn btn-ns">Add to Team</button>
-          </div>
-        </div>
-      </div>
+        }
 
 
+        <div class="row mt-3">
+          <div class="col-3 text-end">
+            <p>Enter last name<span class="text-center, text-danger" *ngIf="this.updateUserForm.controls.lastname.invalid">*</span></p>
+          </div>
+          <div class="col-9">
+            <input type="text" class="form-control" value = {{this.updateUserobj.lastname}} formControlName="lastname">
+          </div>
+        </div>
+        @if(this.updateUserForm.controls.lastname.dirty && this.updateUserForm.controls.lastname.invalid)
+        {
+          <div class="row">
+            <p class="text-center text-danger">{{this.AlphanumericStringVM("Last name")}}</p>
+          </div>
+        }
+
+
+        <div class="row mt-3">
+          <div class="col-3 text-end">
+            <p>Enter email<span class="text-center, text-danger" *ngIf="this.updateUserForm.controls.email.invalid">*</span></p>
+          </div>
+          <div class="col-9">
+            <input type="email" class="form-control" value={{this.updateUserobj.email}} formControlName="email">
+          </div>
+        </div>
+        @if(this.updateUserForm.controls.email.dirty && this.updateUserForm.controls.email.invalid)
+        {
+          <div class="row">
+            <p class="text-center text-danger">{{this.emailVM}}</p>
+          </div>
+        }
+
+
+        <div class="row mt-3">
+          <div class="col-3 text-end">
+            <p>Enter username<span class="text-center, text-danger" *ngIf="this.updateUserForm.controls.username.invalid">*</span></p>
+          </div>
+          <div class="col-9">
+            <input type="text" class="form-control" value={{this.updateUserobj.username}} formControlName="username">
+          </div>
+        </div>   
+        @if(this.updateUserForm.controls.username.dirty && this.updateUserForm.controls.username.invalid)
+        {
+          <div class="row">
+            <p class="text-center text-danger">{{this.AlphanumericStringVM("Username")}}</p>
+          </div>
+        }
+
+
+        <div class="row mt-3">
+          <table class="table-ns p-0">
+            <thead>
+              <tr>
+                <td>Cient Name</td>
+                <td colspan="2">Team Name</td>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngFor = "let useritem of this.getAllClienatTeamPairs">
+                <tr>
+                  <td style="background-color: white !important;">{{useritem.clientname}}</td>
+                  <td style="background-color: white !important;">{{useritem.teamname}}</td>
+                  <td class="nospaceincell" style="background-color: white !important;">
+                    @if(this.FindClientTeamMapping(this.updateUserobj.clientTeamMapping,useritem))
+                    {
+                      <input type="checkbox" class="clientteammapping" value='{"teamid": "{{useritem.teamid}}", "clientid": "{{useritem.clientid}}"}' checked>
+                    }
+                    @else {
+                      <input type="checkbox" class="clientteammapping" value='{"teamid": "{{useritem.teamid}}", "clientid": "{{useritem.clientid}}"}'>
+                    }
+  
+                  </td>
+                </tr>               
+              </ng-container>
+
+            </tbody>
+          </table>
+        </div>
+    </form>
     </div> 
     <div class="modal-footer"> 
-      <input type="submit" from="AddUserForm" value="Add User" class="btn btn-ns">
+      <input type="submit" from="EditUserModal" value="Edit User" class="btn btn-ns" (click) = "UpdateUser()" [disabled]="this.updateUserForm.invalid">
       <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
         Close 
       </button> 
@@ -313,20 +285,95 @@
 </div>
 
 
+<!-- Edit Client -->
+<div class="modal" tabindex="-1" role="dialog" id="EditClientModal"> 
+  <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document"> 
+    <div class="modal-content"> 
+      <div class="modal-header"> 
+        <h4 class="modal-title">Edit Team</h4> 
+      </div> 
+      <div class="modal-body">
+        @if(this.postRequestStatus.status === "OK")
+        {
+          <div class="alert alert-success">
+            <p>Update is successful</p>
+          </div>
+        }
+        @else if(this.postRequestStatus.status === "KO")
+        {
+          <div class="alert alert-danger">
+            <p>Update Failed</p>
+          </div>
+        }
+        <form id="UpdateTeamForm" [formGroup]="this.updateClientForm">
+          <input type="hidden" value={{this.updateClientForm.value.id}} >
+          <div class="row">
+            <div class="col-3">
+              <p class="text-end">Name<span class="text-danger" *ngIf="this.updateClientForm.controls.name.invalid">*</span></p>
+            </div>
+            <div class="col-9">
+              <input type="text" class="form-control" formControlName="name" value={{this.updateClientForm.value.name}}>
+            </div>
+          </div>
+          @if(this.updateClientForm.controls.name.dirty && this.updateClientForm.controls.name.invalid)
+          {
+            <div class="row">
+              <p class="text-center text-danger">{{this.AlphanumericStringVM("Name")}}</p>
+            </div>
+          }
+        </form>
+  
+  
+      </div> 
+      <div class="modal-footer">
+        <input  type="submit" form="EditClientModal" class="btn btn-ns" value="Update Client" (click) = "UpdateClient()" [disabled]=this.updateClientForm.invalid>
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button> 
+      </div> 
+    </div> 
+  </div> 
+  </div>
+
+<!-- Delete Modal-->
 <div id="DeleteModal" class="modal" tabindex="-1" role="dialog" >
     <div class="modal-dialog modal-dialog-scrollable" role="document">
   
       <!-- Modal content-->
       <div class="modal-content">
         <div class="modal-header">
-            <h4 class="modal-title">Delete {{itemname}}</h4>
+            <h4 class="modal-title">Delete {{deleteItemName}}</h4>
           
         </div>
         <div class="modal-body">
-          <p>Do you want to delete {{itemtype}} {{itemname}}?</p>
+          @if(this.postRequestStatus.status === "OK")
+          {
+            <div class="alert alert-success">
+              <p>{{deleteItemtype}} successfuly deleted</p>
+            </div>
+          }
+          @else if(this.postRequestStatus.status === "KO")
+          {
+            <div class="alert alert-danger">
+              <p>{{deleteItemtype}} Fail to delete</p>
+            </div>
+          }
+          <div class="row">
+              <p>Do you want to delete {{deleteItemtype}} {{deleteItemName}}?</p>
+          </div>
+          <form [formGroup] = "deleteItemForm">
+            <div class="d-flex d-inline-flex w-100">
+              <span class="text-danger" *ngIf="this.deleteItemForm.controls.verificationcode.invalid">*</span><input type="text" placeholder="Enter e-mail verification code" class="form-control" formControlName="verificationcode" >
+              <img class="btn" src="../../../assets/email-authentication32.png" (click) = "DeleteVerificationCode(deleteItemId,deleteItemtype)">
+          </div>
+          </form>
+
+
+          @if(this.warningMessage != null)
+          {
+            <p class="text-danger mt-3">{{this.warningMessage}}</p>
+          }
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-danger" (click) = "DeleteItem(itemid,itemtype)"> Delete {{itemtype}}</button>
+            <button type="button" class="btn btn-danger" (click) = "DeleteItem(deleteItemId,deleteItemtype)"> Delete {{deleteItemName}}</button>
             <button type="button" class="btn btn-ns" data-bs-dismiss="modal">Close</button>
         </div>
       </div>

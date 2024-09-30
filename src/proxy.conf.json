@@ -1,11 +1,11 @@
 {
     "/api": {
-        "target": "http://localhost/",
-        "secure": true
+        "target": "https://localhost/",
+        "secure": false
     },
-    "/certificates":
-    {
-        "target": "http://localhost/",
-        "secure": true
-    }
+	"/EmailNotification": {
+		"target": "https://localhost/",
+		"secure": false,
+		"loglevel": "debug"
+	}
 }
