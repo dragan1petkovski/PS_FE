@@ -1,6 +1,7 @@
 import {  Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { DeleteItem } from '../interfaces/Services/DeleteItem';
+import { iStatusMessage } from './iStatusMessage';
+import { StatusMessages } from '../StaticObjects/StatusMessages';
 
 @Injectable({
     providedIn: "root",
@@ -13,7 +14,7 @@ export class ConnectionService{
         this.route = inject(Router)
     }
 
-    async getItems(url: string)
+    async GET(url: string)
     {
         try {
             let dataObj = await fetch(url,
@@ -21,19 +22,26 @@ export class ConnectionService{
                     
                     headers: {
                         "Content-Type":"application/json",
-                        "Cache-Control":"no-store",
                         "Authorization": `Bearer ${sessionStorage.getItem("jwt")}`
                     }
-                }).then(resolve => {
-                if(resolve.status === 401)
+                }).then(response => {
+                if(response.status === 401)
                 {
                     sessionStorage.removeItem("jwt")
                     this.route.navigate(["/"])
-                    return null
+                    return {status: "NOTOK", statusMessage: response.json()}
+                }
+                else if(response.status === 403)
+                {
+                    return {status: "NOTOK", statusMessage: response.json()}
+                }
+                else if(response.status === 200)
+                {
+                    return response.json()
                 }
                 else
                 {
-                    return resolve.json()
+                    return {status: "NOTOK", statusMessage: response.json()}
                 }
             })
             return dataObj
@@ -45,7 +53,7 @@ export class ConnectionService{
         
     }
 
-    async postItem(url: string, data: any)
+    async POST(url: string, data: any)
     {
 
         let response = await fetch(url, {
@@ -53,7 +61,6 @@ export class ConnectionService{
             mode: "cors",
             headers: {
                 "Content-Type":"application/json",
-                "Cache-Control":"no-store",
                 "Authorization": `Bearer ${sessionStorage.getItem("jwt")}`
             },
             // redirect: "follow",
@@ -64,22 +71,30 @@ export class ConnectionService{
             {
                 sessionStorage.removeItem("jwt")
                 this.route.navigate(["/"])
-                return null;
+                return {status: "NOTOK", statusMessage: response.json()}
             }
             else if(response.status === 403)
             {
-                return null;
+                return {status: "NOTOK", statusMessage: response.json()}
+            }
+            else if(response.status === 201)
+            {
+                return {status: "OK", statusMessage: response.json()}
+            }
+            else if(response.status === 200)
+            {
+                return {status: "OK", statusMessage: response.json()}
             }
             else
             {
-                return response.json()
+                return {status: "NOTOK", statusMessage: response.json()}
             }
         }
         );
         return response
     }
     
-    async PostSignIn(url: string, data: any)
+    async POSTLogin(url: string, data: any)
     {
         return  fetch(url, {
             method: "POST",
@@ -87,7 +102,6 @@ export class ConnectionService{
             //cache: "no-store",
             headers: {
                 "Content-Type":"application/json",
-                "Cache-Control":"no-store"
             },
             // redirect: "follow",
             // referrerPolicy: "no-referrer",
@@ -95,7 +109,7 @@ export class ConnectionService{
         })
     }
 
-    async postUploadCertificate(url: string, data: any)
+    async POSTUpload(url: string, data: any)
     {
 
         let response = await fetch(url, {
@@ -113,60 +127,70 @@ export class ConnectionService{
             {
                 sessionStorage.removeItem("jwt")
                 this.route.navigate(["/"])
-                return null;
+                return {status: "NOTOK", statusMessage: response.json()}
             }
             else if(response.status === 403)
             {
-                return null;
+                return {status: "NOTOK", statusMessage: response.json()}
+            }
+            else if(response.status === 201)
+            {
+                return {status: "OK", statusMessage: response.json()}
             }
             else
             {
-                return response.json()
+                return {status: "NOTOK", statusMessage: response.json()}
             }
         }
         );
         return response
     }
 
-    async DeleteItem(url: string,deleteitem: any)
+    async PUT(url: string, data: any)
     {
+
         let response = await fetch(url, {
-            method: "DELETE",
+            method: "PUT",
             mode: "cors",
             headers: {
                 "Content-Type":"application/json",
                 "Cache-Control":"no-store",
                 "Authorization": `Bearer ${sessionStorage.getItem("jwt")}`
             },
-            body: JSON.stringify(deleteitem)
+            // redirect: "follow",
+            // referrerPolicy: "no-referrer",
+            body: JSON.stringify(data),
         }).then(response => {
             if(response.status === 401)
             {
                 sessionStorage.removeItem("jwt")
                 this.route.navigate(["/"])
-                return null;
+                return {status: "NOTOK", statusMessage: response.json()}
             }
             else if(response.status === 403)
             {
-                return null;
+                return {status: "NOTOK", statusMessage: response.json()}
+            }
+            else if(response.status === 200)
+            {
+                return {status: "OK", statusMessage: response.json()}
             }
             else
             {
-                return response.json()
+                return {status: "NOTOK", statusMessage: response.json()}
             }
         }
         );
         return response
     }
 
-    async DeleteURL(url: string)
+    async DELETE(url: string)
     {
         let response = await fetch(url, {
             method: "DELETE",
             mode: "cors",
             headers: {
                 "Content-Type":"application/json",
-                "Cache-Control":"no-store",
                 "Authorization": `Bearer ${sessionStorage.getItem("jwt")}`
             }
         }).then(response => {
@@ -174,15 +198,47 @@ export class ConnectionService{
             {
                 sessionStorage.removeItem("jwt")
                 this.route.navigate(["/"])
-                return null;
+                return {status: "NOTOK", statusMessage: response.json()}
             }
             else if(response.status === 403)
             {
-                return null;
+                return {status: "NOTOK", statusMessage: response.json()}
+            }
+            else if(response.status == 204)
+            {
+
+                if(url.toLowerCase().includes("client"))
+                {
+                    return {status: "OK", statusMessage: StatusMessages.DeleteClient.GetMessage()}
+                }
+                else if(url.toLowerCase().includes("team"))
+                {
+                    return {status: "OK", statusMessage: StatusMessages.DeleteTeam.GetMessage()}
+                }
+                else if(url.toLowerCase().includes("user"))
+                {
+                    return {status: "OK", statusMessage: StatusMessages.DeleteUser.GetMessage()}
+                }
+                else if(url.toLowerCase().includes("credential"))
+                {
+                    return {status: "OK", statusMessage: StatusMessages.DeleteCredential.GetMessage()}
+                }
+                else if(url.toLowerCase().includes("certificate"))
+                {
+                    return {status: "OK", statusMessage: StatusMessages.DeleteCertificate.GetMessage()}
+                }
+                else if(url.toLowerCase().includes("personalfolder"))
+                {
+                    return {status: "OK", statusMessage: StatusMessages.DeletePersonalFolder.GetMessage()}
+                }
+                else
+                {
+                    return {status: "OK", statusMessage: "Item is successfully deleted"}
+                }
             }
             else
             {
-                return response.json()
+                return {status: "NOTOK", statusMessage: response.json()}
             }
         }
         );

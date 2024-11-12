@@ -47,6 +47,7 @@
             <td style="background-color: white !important;" class="nospaceincell">{{item.createdate}}</td>
             <td style="background-color: white !important;" class="nospaceincell">{{item.updatedate}}</td>
             <td class="nospaceincell" style="background-color: white !important;">
+                <i class="resetpassword" (click) = "UserPasswordReset(item.id)"></i>&nbsp;
                 <i id="{{item.id}}-edit" class="bi bi-pencil" (click) = "OpenUserModal(item.id)"></i>&nbsp;
                 <i id="{{item.id}}-delete" class="bi bi-trash"(click) = "DeleteModal(item.id,item.username,'user')"></i>
             </td>
@@ -81,6 +82,20 @@
     </table>
 </div>
 
+<div class="toast bg-success" id="info-Success" style="position: absolute; bottom: 0; right: 0;">
+  <div class="toast-header">
+    <strong class="me-auto">Email succesffuly sent</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+  </div>
+</div>
+
+<div class="toast bg-danger" id="info-Failed" style="position: absolute; bottom: 0; right: 0;">
+  <div class="toast-header">
+    <strong class="me-auto">Email Failed sent</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+  </div>
+</div>
+
 <!-- Edit Team -->
 <div class="modal" tabindex="-1" role="dialog" id="EditTeamModal"> 
 <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document"> 
@@ -89,16 +104,16 @@
       <h4 class="modal-title">Edit Team</h4> 
     </div> 
     <div class="modal-body">
-      @if(this.postRequestStatus.status === "OK")
+      @if(RequestStatus.status === "OK")
       {
         <div class="alert alert-success">
-          <p>Update is successful</p>
+          <p>{{RequestStatus.statusMessage}}</p>
         </div>
       }
-      @else if(this.postRequestStatus.status === "KO")
+      @else if(RequestStatus.status === "NOTOK")
       {
         <div class="alert alert-danger">
-          <p>Update Failed</p>
+          <p>{{RequestStatus.statusMessage}}</p>
         </div>
       }
       <form id="UpdateTeamForm" [formGroup]="this.updateTeamForm">
@@ -114,7 +129,7 @@
         @if(this.updateTeamForm.controls.name.dirty && this.updateTeamForm.controls.name.invalid)
         {
           <div class="row">
-            <p class="text-center text-danger">{{this.AlphanumericStringVM("Name")}}</p>
+            <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidName")}}</p>
           </div>
         }
 
@@ -165,16 +180,16 @@
       <h4 class="modal-title">Edit User</h4> 
     </div> 
     <div class="modal-body">
-      @if(this.postRequestStatus.status === "OK")
+      @if(RequestStatus.status === "OK")
       {
         <div class="alert alert-success">
-          <p>Update is successful</p>
+          <p>{{RequestStatus.statusMessage}}</p>
         </div>
       }
-      @else if(this.postRequestStatus.status === "KO")
+      @else if(RequestStatus.status === "NOTOK")
       {
         <div class="alert alert-danger">
-          <p>Update Failed</p>
+          <p>{{RequestStatus.statusMessage}}</p>
         </div>
       }
 
@@ -190,7 +205,7 @@
         @if(this.updateUserForm.controls.firstname.dirty && this.updateUserForm.controls.firstname.invalid)
         {
           <div class="row">
-            <p class="text-center text-danger">{{this.AlphanumericStringVM("First name")}}</p>
+            <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidName")}}</p>
           </div>
         }
 
@@ -206,7 +221,7 @@
         @if(this.updateUserForm.controls.lastname.dirty && this.updateUserForm.controls.lastname.invalid)
         {
           <div class="row">
-            <p class="text-center text-danger">{{this.AlphanumericStringVM("Last name")}}</p>
+            <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidName")}}</p>
           </div>
         }
 
@@ -222,7 +237,7 @@
         @if(this.updateUserForm.controls.email.dirty && this.updateUserForm.controls.email.invalid)
         {
           <div class="row">
-            <p class="text-center text-danger">{{this.emailVM}}</p>
+            <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidEmail")}}</p>
           </div>
         }
 
@@ -238,7 +253,7 @@
         @if(this.updateUserForm.controls.username.dirty && this.updateUserForm.controls.username.invalid)
         {
           <div class="row">
-            <p class="text-center text-danger">{{this.AlphanumericStringVM("Username")}}</p>
+            <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidName")}}</p>
           </div>
         }
 
@@ -293,16 +308,16 @@
         <h4 class="modal-title">Edit Team</h4> 
       </div> 
       <div class="modal-body">
-        @if(this.postRequestStatus.status === "OK")
+        @if(RequestStatus.status === "OK")
         {
           <div class="alert alert-success">
-            <p>Update is successful</p>
+            <p>{{RequestStatus.statusMessage}}</p>
           </div>
         }
-        @else if(this.postRequestStatus.status === "KO")
+        @else if(RequestStatus.status === "NOTOK")
         {
           <div class="alert alert-danger">
-            <p>Update Failed</p>
+            <p>{{RequestStatus.statusMessage}}</p>
           </div>
         }
         <form id="UpdateTeamForm" [formGroup]="this.updateClientForm">
@@ -318,7 +333,7 @@
           @if(this.updateClientForm.controls.name.dirty && this.updateClientForm.controls.name.invalid)
           {
             <div class="row">
-              <p class="text-center text-danger">{{this.AlphanumericStringVM("Name")}}</p>
+              <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidName")}}</p>
             </div>
           }
         </form>
@@ -344,16 +359,16 @@
           
         </div>
         <div class="modal-body">
-          @if(this.postRequestStatus.status === "OK")
+          @if(RequestStatus.status === "OK")
           {
             <div class="alert alert-success">
-              <p>{{deleteItemtype}} successfuly deleted</p>
+              <p>{{RequestStatus.statusMessage}}</p>
             </div>
           }
-          @else if(this.postRequestStatus.status === "KO")
+          @else if(RequestStatus.status === "NOTOK")
           {
             <div class="alert alert-danger">
-              <p>{{deleteItemtype}} Fail to delete</p>
+              <p>{{RequestStatus.statusMessage}}</p>
             </div>
           }
           <div class="row">
@@ -364,6 +379,12 @@
               <span class="text-danger" *ngIf="this.deleteItemForm.controls.verificationcode.invalid">*</span><input type="text" placeholder="Enter e-mail verification code" class="form-control" formControlName="verificationcode" >
               <img class="btn" src="../../../assets/email-authentication32.png" (click) = "DeleteVerificationCode(deleteItemId,deleteItemtype)">
           </div>
+          @if(this.deleteItemForm.controls.verificationcode.dirty && this.deleteItemForm.controls.verificationcode.invalid)
+          {
+            <div class="row">
+              <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("NumberExpected")}}</p>
+            </div>
+          }
           </form>
 
 
@@ -380,3 +401,4 @@
   
     </div>
   </div>
+

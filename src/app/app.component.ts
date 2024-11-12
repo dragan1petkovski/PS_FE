@@ -8,7 +8,7 @@ import { ReactiveFormsModule, FormControl, FormGroup} from '@angular/forms';
 import { iChangePassword } from './interfaces/ChangePassword';
 import { ConnectionService } from './utility/connection.service';
 import { api_endpoints } from './StaticObjects/api_endpoints';
-import { iPostRequestStatus } from './interfaces/PostRequestStatus';
+import { iStatusMessage,iStatus,StatusMessage } from './utility/iStatusMessage';
 
 @Component({
   selector: 'app-root',
@@ -19,7 +19,7 @@ import { iPostRequestStatus } from './interfaces/PostRequestStatus';
 })
 export class AppComponent {
   flag: boolean = false
-  responseStatus: string = ""
+  RequestStatus: iStatusMessage = {status: "",statusMessage: ""}
 
   ChangePasswordFormGroup = new FormGroup({
     newpassword: new FormControl('',Validators.minLength(8)),
@@ -28,7 +28,7 @@ export class AppComponent {
     verificationCode: new FormControl('',Validators.pattern("^[0-9]{8}$"))
   })
 
-  constructor(private jwtService: JwtService, private router: Router, private connectionService: ConnectionService) {
+  constructor(private jwtService: JwtService, private router: Router, private connectionService: ConnectionService, private statusMessage: StatusMessage) {
     router.events.subscribe((event: Event) => {
       
       if(event instanceof NavigationEnd)
@@ -61,16 +61,14 @@ export class AppComponent {
     {
       let changePassword: iChangePassword = {oldPassword: _currentPassword||"", newPassword: _newPassword||"", confirmPassword: _confirmPassword||"", verificationcode: _verificationCode||"0"}
       
-      console.log(changePassword)
-      let status = (await this.connectionService.postItem(api_endpoints.ChangePassword,changePassword)) as iPostRequestStatus
-      this.responseStatus = status.status;
+      this.RequestStatus = await this.statusMessage.GetResponse(await this.connectionService.POST(api_endpoints.changePassword,changePassword) as iStatus)
     }
 
   }
 
   async GetVerificationCode()
   {
-    this.connectionService.getItems(api_endpoints.GetVerificationCode)
+    this.connectionService.GET(api_endpoints.verificationcode)
   }
 
   SignOut()

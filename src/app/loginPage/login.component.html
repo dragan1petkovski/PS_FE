@@ -25,7 +25,7 @@
         </div>
         <div class="row justify-content-center">
             <div class="col-4 d-flex justify-content-center ">
-                <input class="w-100 form-control btn-ns btn" type="submit" value="Login">
+                <input class="w-100 form-control btn-ns btn" type="submit" value="Login" [disabled]="!loginGroup.valid">
             </div>
         </div>
     </form>

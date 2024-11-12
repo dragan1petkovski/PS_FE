@@ -13,7 +13,7 @@
                 <button class="btn btn-ns" data-bs-toggle="modal" data-bs-target="#AddFolder">Add Folder</button>&nbsp;
                 <button class="btn btn-ns" (click) = "OpenModalWithData('AddPersonalCredential','personalFolderList')">Add credential</button>&nbsp;
                 <button class="btn btn-ns" data-bs-toggle="modal" data-bs-target="#PasswordGenerator">Password Generator</button>&nbsp;
-                <button class="btn btn-ns" data-bs-toggle="modal" (click) = "OpenModalWithData('DeletePersonalFolderModal','personalFolderList')">Delete Personal Folder</button>
+                <button class="btn btn-ns" data-bs-toggle="modal" (click) = "OpenModalWithData('ManagePersonalFolderModal','personalFolderList')">Manage Personal Folders</button>
                 
             }
             @else if(selectTab.certificatesTab)
@@ -44,17 +44,17 @@
           <h4 class="modal-title">Add Credential</h4> 
         </div> 
         <div class="modal-body"> 
-            @if(ResetFormGroup(responseStatus.status) === "OK")
+            @if(RequestStatus.status === "OK")
             {
-                <div class="alert alert-success" role="alert">
-                    Credential successfully added
-                  </div>
+              <div class="alert alert-success">
+                <p>{{RequestStatus.statusMessage}}</p>
+              </div>
             }
-            @else if (ResetFormGroup(responseStatus.status) === "KO")
+            @else if(RequestStatus.status === "NOTOK")
             {
-                <div class="alert alert-danger" role="alert">
-                    Failed to add credential - {{this.responseStatus.errorMessage}}
-                </div>
+              <div class="alert alert-danger">
+                <p>{{RequestStatus.statusMessage}}</p>
+              </div>
             }
 
           <form [formGroup]="addCredentialForm" id="addCredentialForm" >
@@ -67,12 +67,11 @@
                     </div>
                   
                 </div>
-                @if(this.addCredentialForm.controls.domain.invalid && this.addCredentialForm.controls.domain.dirty)
+                @if(this.addCredentialForm.controls.domain.dirty && this.addCredentialForm.controls.domain.invalid)
                 {
-                    <div class="row">
-                        <p class="text-danger text-center">{{this.AlphanumericStringVM("Domain")}}</p>
-                        
-                    </div>
+                  <div class="row">
+                    <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidUserName")}}</p>
+                  </div>
                 }
 
 
@@ -84,12 +83,13 @@
                         <input formControlName="username" class="w-100 form-control" type="text">
                     </div>
                 </div>
-                @if(this.addCredentialForm.controls.username.invalid && this.addCredentialForm.controls.username.dirty)
+                @if(this.addCredentialForm.controls.username.dirty && this.addCredentialForm.controls.username.invalid)
                 {
-                    <div class="row">
-                        <p class="text-danger text-center">{{this.AlphanumericStringVM("Username")}}</p>
-                    </div>
+                  <div class="row">
+                    <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidUserName")}}</p>
+                  </div>
                 }
+
                 <div class="row m-2">
                     <div class="col-4 text-end">
                         <p>Password <span *ngIf="addCredentialForm.controls.password.invalid" class="text-danger">*</span></p>
@@ -109,12 +109,13 @@
                     </div>
 
                 </div>
-                @if(this.addCredentialForm.controls.email.invalid && this.addCredentialForm.controls.email.dirty)
+                @if(this.addCredentialForm.controls.email.dirty && this.addCredentialForm.controls.email.invalid)
                 {
-                    <div class="row">
-                        <p class="text-danger text-center">{{this.emailVM}}</p>
-                    </div>
+                  <div class="row">
+                    <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidEmail")}}</p>
+                  </div>
                 }
+
                 <div class="row m-2">
                     <div class="col-4 text-end ">
                         <p>Remote</p>
@@ -173,32 +174,32 @@
     <div class="modal-dialog modal-lg" role="document"> 
       <div class="modal-content"> 
         <div class="modal-header btn-ns"> 
-          <h4 class="modal-title">Add Folder</h4> 
+          <h4 class="modal-title" id="AddFolderTitle">Add Folder</h4> 
         </div> 
         <div class="modal-body">
-            @if(this.responseStatus.status === "OK")
+            @if(RequestStatus.status === "OK")
             {
-                <div class="alert alert-success" role="alert">
-                    Personal Folder successfully added
-                </div>
+              <div class="alert alert-success">
+                <p>{{RequestStatus.statusMessage}}</p>
+              </div>
             }
-            @else if(this.responseStatus.status === "KO")
+            @else if(RequestStatus.status === "NOTOK")
             {
-                <div class="alert alert-danger" role="alert">
-                    Personal Folder faild to add - {{this.responseStatus.errorMessage}}
-                </div>
+              <div class="alert alert-danger">
+                <p>{{RequestStatus.statusMessage}}</p>
+              </div>
             }
             <form id="addPersonalFolder" [formGroup] = "addPersonalFolderFormGroup">
                 
                 <div class="row">
                     <div class="col-3 text-end">
-                        Enter folder name<span *ngIf="this.addPersonalFolderFormGroup.controls.addPersonalFolder.invalid" class="text-danger">*</span>
+                        Enter folder name<span *ngIf="this.addPersonalFolderFormGroup.controls.folderName.invalid" class="text-danger">*</span>
                     </div>
                     <div class="col-9">
-                        <input type="text" formControlName = "addPersonalFolder" class="form-control">
+                        <input type="text" formControlName = "folderName" class="form-control">
                     </div>
                 </div>
-                @if(this.addPersonalFolderFormGroup.controls.addPersonalFolder.invalid && this.addPersonalFolderFormGroup.controls.addPersonalFolder.dirty)
+                @if(this.addPersonalFolderFormGroup.controls.folderName.invalid && this.addPersonalFolderFormGroup.controls.folderName.dirty)
                 {
                     <div class="row">
                         <p class="text-danger text-center">Name must be alphanumeric string</p>
@@ -225,18 +226,18 @@
         <h4 class="modal-title">Add Credential</h4> 
       </div> 
       <div class="modal-body"> 
-          @if(ResetFormGroup(responseStatus.status) === "OK")
-          {
-                <div class="alert alert-success" role="alert">
-                    Credential successfully added
-                  </div>
-          }
-          @else if (ResetFormGroup(responseStatus.status) === "KO")
-          {
-                <div class="alert alert-danger" role="alert">
-                    Failed to add credential - {{this.responseStatus.errorMessage}}
-                </div>
-          }
+        @if(RequestStatus.status === "OK")
+        {
+          <div class="alert alert-success">
+            <p>{{RequestStatus.statusMessage}}</p>
+          </div>
+        }
+        @else if(RequestStatus.status === "NOTOK")
+        {
+          <div class="alert alert-danger">
+            <p>{{RequestStatus.statusMessage}}</p>
+          </div>
+        }
         <form [formGroup]="addCredentialForm">
           <div class="row m-2">
               <div class="col-4 text-end">
@@ -246,12 +247,13 @@
                   <input formControlName="domain" class="w-100 form-control" type="text">
               </div>
           </div>
-          @if(this.addCredentialForm.controls.domain.invalid && this.addCredentialForm.controls.domain.dirty)
+          @if(this.addCredentialForm.controls.domain.dirty && this.addCredentialForm.controls.domain.invalid)
           {
-              <div class="row">
-                  <p class="text-danger text-center">{{this.AlphanumericStringVM("Domain")}}</p>
-              </div>
+            <div class="row">
+              <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidEmail")}}</p>
+            </div>
           }
+
           <div class="row m-2">
               <div class="col-4 text-end">
                   <p>Username <span *ngIf="addCredentialForm.controls.username.invalid" class="text-danger">*</span></p>
@@ -263,9 +265,9 @@
           </div>
           @if(this.addCredentialForm.controls.username.invalid && this.addCredentialForm.controls.username.dirty)
           {
-              <div class="row">
-                  <p class="text-danger text-center">{{this.AlphanumericStringVM("Username")}}</p>
-              </div>
+            <div class="row">
+              <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidUserName")}}</p>
+            </div>
           }
           <div class="row m-2">
               <div class="col-4 text-end">
@@ -287,8 +289,8 @@
           </div>
           @if(this.addCredentialForm.controls.email.invalid && this.addCredentialForm.controls.email.dirty)
           {
-              <div class="row">
-                  <p class="text-danger text-center">{{this.emailVM}}</p>
+            <div class="row">
+                <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidEmail")}}</p>
               </div>
           }
           
@@ -333,50 +335,113 @@
 </div>
 
 
-<!-- Delete Personal Folder -->
-<div class="modal" tabindex="-1" role="dialog" id="DeletePersonalFolderModal"> 
+<!-- Manage Personal Folder -->
+<div class="modal" tabindex="-1" role="dialog" id="ManagePersonalFolderModal"> 
     <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document"> 
       <div class="modal-content"> 
         <div class="modal-header btn-ns"> 
-          <h4 class="modal-title">Add Credential</h4> 
+          <h4 class="modal-title">Manage Personal Folders</h4> 
         </div> 
         <div class="modal-body"> 
-            @if(responseStatus.status === "OK")
+            @if(RequestStatus.status === "OK")
             {
-                  <div class="alert alert-success" role="alert">
-                      Successfully Delete Personal Folder 
-                    </div>
+              <div class="alert alert-success">
+                <p>{{RequestStatus.statusMessage}}</p>
+              </div>
             }
-            @else if (responseStatus.status === "KO")
+            @else if(RequestStatus.status === "NOTOK")
             {
-                  <div class="alert alert-danger" role="alert">
-                      Failed to add credential - {{this.responseStatus.errorMessage}}
-                  </div>
+              <div class="alert alert-danger">
+                <p>{{RequestStatus.statusMessage}}</p>
+              </div>
             }
             @if(this.warningMessage != "")
             {
                 <p class="text-danger">{{this.warningMessage}}</p>
             } 
-            <div class="row m-2" *ngFor="let item of itemList">
-                  <div class="col-4 text-end ">
-                      <p>{{item.name}}</p>
-                  </div>
-                  <div class="col d-flex justify-content-start p-0">
-                      <input type="checkbox"  name="deletePersonalFolder" class="deletepersoanlFolderList" id={{item.id}} value={{item.id}}>
-                  </div>
+            <div class="mt-2">
+              <table class="m-0 p-0 table-ns w-100">
+                <thead>
+                  <tr>
+                    <td>Personal Folder Name</td>
+                    <td>Options</td>
+                  </tr>
+  
+                </thead>
+                <tbody class="bg-white">
+                    <tr *ngFor="let item of itemList" style="background-color: #15dffd !important;">
+                      <td style="background-color: white !important;">{{item.name}}</td>
+                      <td style="background-color: white !important;" class="nospaceincell">
+                        <i class="bi bi-trash" (click) = "DeletePersonalFolder(item.name,item.id)"></i>&nbsp;
+                        <i class="bi bi-pencil" (click) = "UpdatePersonalFolderModal(item.name,item.id)"></i>
+                      </td>
+                    </tr>
+                </tbody>
+              </table>
             </div>
 
     
         </div> 
         <div class="modal-footer"> 
-          <input type="submit" class="btn btn-ns" value="Delete Personal Folder" (click) = "DeletePersonalFolder()">
-          <button type="button" class="btn btn-danger" (click) = "CloseModal('DeletePersonalFolderModal')"> 
+          <button type="button" class="btn btn-danger" (click) = "CloseModal('ManagePersonalFolderModal')"> 
             Close 
           </button> 
         </div> 
       </div> 
     </div> 
   </div>
+
+
+
+<!-- Update Folder -->
+<div class="modal" tabindex="-1" role="dialog" id="UpdateFolder"> 
+  <div class="modal-dialog modal-lg" role="document"> 
+    <div class="modal-content"> 
+      <div class="modal-header btn-ns"> 
+        <h4 class="modal-title" id="AddFolderTitle">Update Folder</h4> 
+      </div> 
+      <div class="modal-body">
+          @if(RequestStatus.status === "OK")
+          {
+            <div class="alert alert-success">
+              <p>{{RequestStatus.statusMessage}}</p>
+            </div>
+          }
+          @else if(RequestStatus.status === "NOTOK")
+          {
+            <div class="alert alert-danger">
+              <p>{{RequestStatus.statusMessage}}</p>
+            </div>
+          }
+          <form id="updatePersonalFolder" [formGroup] = "updatePersonalFolderFormGroup">
+              
+              <div class="row">
+                  <div class="col-3 text-end">
+                      Enter folder name<span *ngIf="this.addPersonalFolderFormGroup.controls.folderName.invalid" class="text-danger">*</span>
+                  </div>
+                  <div class="col-9">
+                      <input type="text" formControlName = "folderName" class="form-control" id="updateFolderName">
+                  </div>
+              </div>
+              @if(this.addPersonalFolderFormGroup.controls.folderName.invalid && this.addPersonalFolderFormGroup.controls.folderName.dirty)
+              {
+                  <div class="row">
+                      <p class="text-danger text-center">Name must be alphanumeric string</p>
+                  </div>  
+              }
+          </form>
+  
+      </div> 
+      <div class="modal-footer"> 
+          <input type="submit" from="addPersonalFolder" class="btn btn-ns" value="Add Folder" [disabled]="!updatePersonalFolderFormGroup.valid" (click) = "UpdatePersonalFolder()">
+        <button type="button" class="btn btn-danger" (click) = "CloseModal('UpdateFolder')"> 
+          Close 
+        </button> 
+      </div> 
+    </div> 
+  </div> 
+</div>
+
 
 }
 
@@ -391,17 +456,17 @@
           <h4 class="modal-title">Upload Certificate</h4> 
         </div> 
         <div class="modal-body"> 
-            @if(responseStatus.status === "OK")
+            @if(RequestStatus.status === "OK")
             {
-                  <div class="alert alert-success" role="alert">
-                      Successfully uploaded certificate
-                    </div>
+              <div class="alert alert-success">
+                <p>{{RequestStatus.statusMessage}}</p>
+              </div>
             }
-            @else if (responseStatus.status === "KO")
+            @else if(RequestStatus.status === "NOTOK")
             {
-                  <div class="alert alert-danger" role="alert">
-                      Failed to upload certificate - {{this.responseStatus}}
-                  </div>
+              <div class="alert alert-danger">
+                <p>{{RequestStatus.statusMessage}}</p>
+              </div>
             }
 
             <form id="_uploadCertificate">
@@ -477,17 +542,17 @@ id="GiveCredentialInternally">
     </div> 
     <div class="modal-body"> 
 
-        @if(ResetFormGroup(responseStatus.status) === "OK")
+        @if(RequestStatus.status === "OK")
         {
-            <div class="alert alert-success" role="alert">
-                Successfully giving credential
-              </div>
+          <div class="alert alert-success">
+            <p>{{RequestStatus.statusMessage}}</p>
+          </div>
         }
-        @else if (ResetFormGroup(responseStatus.status) === "KO")
+        @else if(RequestStatus.status === "NOTOK")
         {
-            <div class="alert alert-danger" role="alert">
-                Failed to give credential - {{this.responseStatus.errorMessage}}
-            </div>
+          <div class="alert alert-danger">
+            <p>{{RequestStatus.statusMessage}}</p>
+          </div>
         }
 
       <form [formGroup]="giveCredentialInternallyForm">
@@ -501,9 +566,9 @@ id="GiveCredentialInternally">
             </div>
             @if(this.addCredentialForm.controls.domain.invalid && this.addCredentialForm.controls.domain.dirty)
             {
-            <div class="row">
-                <p class="text-danger text-center">{{this.AlphanumericStringVM("Domain")}}</p>
-            </div>
+                <div class="row">
+                    <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidUserName")}}</p>
+                  </div>
             }
 
 
@@ -518,9 +583,9 @@ id="GiveCredentialInternally">
             </div>
             @if(this.addCredentialForm.controls.username.invalid && this.addCredentialForm.controls.username.dirty)
             {
-            <div class="row">
-                <p class="text-danger text-center">{{this.AlphanumericStringVM("Username")}}</p>
-            </div>
+                <div class="row">
+                    <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidUserName")}}</p>
+                  </div>
             }
 
             <div class="row">
@@ -546,9 +611,9 @@ id="GiveCredentialInternally">
             </div>
             @if(this.addCredentialForm.controls.email.invalid && this.addCredentialForm.controls.email.dirty)
             {
-            <div class="row">
-                <p class="text-danger text-center">{{this.emailVM}}</p>
-            </div>
+                <div class="row">
+                    <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidEmail")}}</p>
+                  </div>
             }
 
 
@@ -729,8 +794,8 @@ id="GiveCredentialExternally">
                 @if(this.passwordGeneratorFormGroup.controls.passwordlength.invalid && this.passwordGeneratorFormGroup.controls.passwordlength.dirty)
                 {
                     <div class="row">
-                        <p class="text-center text-danger">{{this.passwordVM}}</p>
-                    </div>
+                        <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("IncorrectPasswordComplexity")}}</p>
+                      </div>
                 }
         
                 <div class="row">

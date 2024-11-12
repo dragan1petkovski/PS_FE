@@ -14,7 +14,7 @@ export class NavMenuHeaderComponent
 
     GetAllClients()
     {
-        this.apiEndpoint.emit(api_endpoints.GetAllFullClients)
+        this.apiEndpoint.emit(api_endpoints.fullclient)
         this.currentSelectTab.emit({ clientTab: true, userTab: false, teamTab: false})
         $('#getallClientsBtn').addClass('active')
         $('#getallTeamsBtn').removeClass('active')
@@ -23,7 +23,7 @@ export class NavMenuHeaderComponent
     
     GetAllUsers()
     {
-        this.apiEndpoint.emit(api_endpoints.GetAllFullUsers)
+        this.apiEndpoint.emit(api_endpoints.user.concat("/all"))
         this.currentSelectTab.emit({ clientTab: false, userTab: true, teamTab: false})
         $('#getallClientsBtn').removeClass('active')
         $('#getallTeamsBtn').removeClass('active')
@@ -32,7 +32,7 @@ export class NavMenuHeaderComponent
 
     GetAllTeams()
     {
-        this.apiEndpoint.emit(api_endpoints.getAllTeams)
+        this.apiEndpoint.emit(api_endpoints.team)
         this.currentSelectTab.emit({ clientTab: false, userTab: false, teamTab: true})
         $('#getallClientsBtn').removeClass('active')
         $('#getallTeamsBtn').addClass('active')

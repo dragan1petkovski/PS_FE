@@ -7,14 +7,14 @@ import { iClientTeamMapping, iGetUpdateTeam } from "../../interfaces/Team/Team";
 import { ConnectionService } from "../../utility/connection.service"
 import { api_endpoints } from "../../StaticObjects/api_endpoints"
 import { iUpdateUser,iGetUserForTeamModal,iPostUpdateUser } from "../../interfaces/User/User";
-import { ReactiveFormsModule, FormControl, FormGroup, RequiredValidator, FormArray, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
 import { JwtService } from "../../utility/jwt.service";
-import { ValidationMessages } from "../../ValidationMessages";
-import { iPostRequestStatus } from "../../interfaces/PostRequestStatus";
 import { iGetClientsForUser } from "../../interfaces/Client/Client"
-import { from } from "rxjs";
-import { DeleteItemRequest } from "../../interfaces/AdminPage/DeleteItemRequest";
 
+import { iStatusMessage,iStatus,StatusMessage } from "../../utility/iStatusMessage";
+import { ValidationMessages } from "../../StaticObjects/ValidationMessages"
+
+declare var bootstrap: any
 
 @Component({
     standalone: true,
@@ -22,20 +22,18 @@ import { DeleteItemRequest } from "../../interfaces/AdminPage/DeleteItemRequest"
     selector: "AdminpageBody",
     imports: [NgFor,NgIf,ReactiveFormsModule,CommonModule],
 })
-export class AdminpageBodyComponent extends ValidationMessages
+export class AdminpageBodyComponent
 {
 
-    constructor(private connectionService: ConnectionService, private jwtService: JwtService) {
-        super()
-    }
+    constructor(private connectionService: ConnectionService, private jwtService: JwtService, public validationMessage: ValidationMessages, private statusMessage: StatusMessage) {}
 
     @Input() currentSelectedTab: iSelectAdminTabs = {clientTab: true, userTab: false, teamTab: false}
     @Input() tableData: iAdminTableData = {clients:[],users:[],teams:[]}
     @Input() searchParameter: string = ""
 
-    postRequestStatus: iPostRequestStatus = {status: "", errorMessage: null}
+    RequestStatus: iStatusMessage = {status: "", statusMessage: ""}
     
-    ClearResponseStatus = () => this.postRequestStatus.status = ""
+    ClearResponseStatus = () => this.RequestStatus.status = ""
     
     deleteItemForm = new FormGroup({
         verificationcode: new FormControl("",[Validators.required,Validators.pattern("^[0-9]{8}$")])
@@ -86,8 +84,8 @@ export class AdminpageBodyComponent extends ValidationMessages
     {
         this.ClearResponseStatus()
         await Promise.allSettled([
-            this.connectionService.getItems(api_endpoints.GetAllPartUsers),
-            this.connectionService.getItems(api_endpoints.UpdateTeam.concat(id))
+            this.connectionService.GET(api_endpoints.user),
+            this.connectionService.GET(api_endpoints.team.concat(id))
         ]).then(resolve => {
             if(resolve[0].status == 'fulfilled' && resolve[1].status == 'fulfilled')
             {
@@ -125,13 +123,13 @@ export class AdminpageBodyComponent extends ValidationMessages
             }
         }
         let updateTeam = {Id: this.updateTeamForm.value.id||"", name: this.updateTeamForm.value.name||"" , userIds: userList}
-        this.postRequestStatus = (await this.connectionService.postItem(api_endpoints.UpdateTeam,updateTeam)) as iPostRequestStatus
+        this.RequestStatus = await this.statusMessage.GetResponse(await this.connectionService.PUT(api_endpoints.team,updateTeam) as iStatus)
     }
 //************ Client ************* */
     async OpenClientModal(id: string)
     {
         this.ClearResponseStatus()
-        let client = await this.connectionService.getItems(api_endpoints.UpdateClient.concat(id)) as iGetClientsForUser
+        let client = await this.connectionService.GET(api_endpoints.fullclient.concat(id)) as iGetClientsForUser
         this.updateClientForm.controls.id.setValue(client.id);
         this.updateClientForm.controls.name.setValue(client.name);
         ($('#EditClientModal')as any).modal('show');
@@ -139,7 +137,7 @@ export class AdminpageBodyComponent extends ValidationMessages
 
     async UpdateClient()
     {
-        this.postRequestStatus = await this.connectionService.postItem(api_endpoints.UpdateClient,{id: this.updateClientForm.value.id||"", name: this.updateClientForm.value.name||""})
+        this.RequestStatus = await this.statusMessage.GetResponse(await this.connectionService.PUT(api_endpoints.client,{id: this.updateClientForm.value.id||"", name: this.updateClientForm.value.name||""}) as iStatus)
     }
 
 //************User********** */
@@ -147,8 +145,8 @@ export class AdminpageBodyComponent extends ValidationMessages
     {
         this.ClearResponseStatus()
         await Promise.allSettled([
-            this.connectionService.getItems(api_endpoints.getAllClientTeamMappings),
-            this.connectionService.getItems(api_endpoints.UpdateUser.concat(id)) 
+            this.connectionService.GET(api_endpoints.getteammapping.concat("all")),
+            this.connectionService.GET(api_endpoints.user.concat(`/all/${id}`)) 
         ]).then(resolve => {
             if(resolve[0].status == 'fulfilled' && resolve[1].status == 'fulfilled')
             {
@@ -195,9 +193,26 @@ export class AdminpageBodyComponent extends ValidationMessages
                 updatedUser.clientTeamPairs?.push(JSON.parse(checkbox.value))
             }
         }
-        this.postRequestStatus = await this.connectionService.postItem(api_endpoints.UpdateUser,updatedUser) as iPostRequestStatus
+        this.RequestStatus = await this.statusMessage.GetResponse(await this.connectionService.PUT(api_endpoints.user,updatedUser) as iStatus)
     }
-//************User********** */
+
+    async UserPasswordReset(id: string)
+    {
+
+        let temp = await this.statusMessage.GetResponse(await this.connectionService.PUT(api_endpoints.resetPassword.concat(id),null) as iStatus)
+        if(temp.status === "OK")
+        {
+         
+            let info = document.getElementById("info-Success")
+            bootstrap.Toast.getOrCreateInstance(info).show()
+        }
+        else
+        {
+            let info = document.getElementById("info-Failed")
+            bootstrap.Toast.getOrCreateInstance(info).show()
+        }
+    }
+    //************User********** */
 
     DeleteModal(itemid: string,itemname: string, itemtype: string)
     {
@@ -223,7 +238,7 @@ export class AdminpageBodyComponent extends ValidationMessages
 
     async DeleteVerificationCode(_id: string,_type: string)
     {
-        this.connectionService.postItem(api_endpoints.DeleteRequest,{id: _id, type: _type})
+        this.connectionService.POST(api_endpoints.deleteverificateionrequest,{id: _id, type: _type})
         
     }
 
@@ -232,18 +247,18 @@ export class AdminpageBodyComponent extends ValidationMessages
         switch(type)
         {
             case 'client':
-                this.postRequestStatus.status = ""
-                this.postRequestStatus = await this.connectionService.DeleteItem(api_endpoints.DeleteClient,{id: _id, verificationCode: this.deleteItemForm.value.verificationcode}) as iPostRequestStatus
+                this.RequestStatus.status = ""
+                this.RequestStatus = await this.statusMessage.GetResponse(await this.connectionService.DELETE(api_endpoints.client.concat(_id,`/${this.deleteItemForm.value.verificationcode}`)) as iStatus)
                 this.deleteItemForm.controls.verificationcode.setValue(null)
                 break;
             case 'team':
-                this.postRequestStatus.status=""
-                this.postRequestStatus = await this.connectionService.DeleteItem(api_endpoints.DeleteTeam,{id: _id, verificationCode: this.deleteItemForm.value.verificationcode}) as iPostRequestStatus
+                this.RequestStatus.status=""
+                this.RequestStatus = await this.statusMessage.GetResponse(await this.connectionService.DELETE(api_endpoints.team.concat(_id,`/${this.deleteItemForm.value.verificationcode}`)) as iStatus)
                 this.deleteItemForm.controls.verificationcode.setValue(null)
                 break;
             case 'user':
-                this.postRequestStatus.status = ""
-                this.postRequestStatus = await this.connectionService.DeleteItem(api_endpoints.DeleteUser,{id: _id, verificationCode: this.deleteItemForm.value.verificationcode}) as iPostRequestStatus
+                this.RequestStatus.status = ""
+                this.RequestStatus = await this.statusMessage.GetResponse(await this.connectionService.DELETE(api_endpoints.user.concat(`/${_id}`,`/${this.deleteItemForm.value.verificationcode}`)) as iStatus)
                 this.deleteItemForm.controls.verificationcode.setValue(null)
                 break;
         }

@@ -56,7 +56,7 @@ export class HomepageComponent  {
     if(selectedTab.credentialsTab)
     {
       this.selectTab = selectedTab
-      this.navMenuBodyItems = (await this.connectionService.getItems(api_endpoints.GetCredentialClientsByUserId)) as iGetClientsForUser[]
+      this.navMenuBodyItems = (await this.connectionService.GET(api_endpoints.clientcredential)) as iGetClientsForUser[]
       if(this.navMenuBodyItems.length >0)
       {
         this.GetData({clientid: this.navMenuBodyItems[0].id,type: "credential"})
@@ -70,7 +70,7 @@ export class HomepageComponent  {
     if(selectedTab.certificatesTab)
     {
       this.selectTab = selectedTab
-      this.navMenuBodyItems = (await this.connectionService.getItems(api_endpoints.GetCertificateClientsByUserId)) as iGetClientsForUser[]
+      this.navMenuBodyItems = (await this.connectionService.GET(api_endpoints.clientcertificate)) as iGetClientsForUser[]
       if(this.navMenuBodyItems.length > 0)
       {
         this.GetData({clientid: this.navMenuBodyItems[0].id,type: "certificate"})
@@ -84,7 +84,7 @@ export class HomepageComponent  {
     if(selectedTab.privateTab)
     {
       this.selectTab = selectedTab
-      this.navMenuBodyItems = (await this.connectionService.getItems(api_endpoints.getPersonalCredentialsFoldersByUserID)) as iPersonalFolder[]
+      this.navMenuBodyItems = (await this.connectionService.GET(api_endpoints.personalfolder)) as iPersonalFolder[]
       this.GetData({clientid: "", type: "personal"})
 
     }
@@ -100,17 +100,27 @@ export class HomepageComponent  {
     switch (dataRequest.type)
     {
       case "credential":
-        this.unfilteredcredentialList = (await this.connectionService.getItems(api_endpoints.GetCredentialByClientID.concat(dataRequest.clientid))) as iGetCredential[]
+        this.unfilteredcredentialList = (await this.connectionService.GET(api_endpoints.credential.concat(`?cid=${dataRequest.clientid}`))) as iGetCredential[]
         this.credentialList = this.unfilteredcredentialList
         break;
       case "certificate":
-        this.unfilteredcertificateList = (await this.connectionService.getItems(api_endpoints.getCertificateByClientID.concat(dataRequest.clientid))) as iGetCertificate[]
+        this.unfilteredcertificateList = (await this.connectionService.GET(api_endpoints.certificate.concat(dataRequest.clientid))) as iGetCertificate[]
         this.certificateList = this.unfilteredcertificateList
         break;
       case "personal":
-        this.unfilteredpersonalcredentialList = (await this.connectionService.getItems(api_endpoints.GetCredentialsByFoderId.concat(dataRequest.clientid))) as iGetPersonalCredentials[]
-        this.personalcredentialList = this.unfilteredpersonalcredentialList
-        break;
+        if(dataRequest.clientid == "")
+        {
+          this.unfilteredpersonalcredentialList = (await this.connectionService.GET(api_endpoints.personalcredential)) as iGetPersonalCredentials[]
+          this.personalcredentialList = this.unfilteredpersonalcredentialList
+          break;
+        }
+        else
+        {
+          this.unfilteredpersonalcredentialList = (await this.connectionService.GET(api_endpoints.personalcredential.concat("?pfid=",dataRequest.clientid))) as iGetPersonalCredentials[]
+          this.personalcredentialList = this.unfilteredpersonalcredentialList
+          break;
+        }
+
       default:
         break;
     }

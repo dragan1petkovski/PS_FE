@@ -8,10 +8,10 @@ import { JwtService } from "../../utility/jwt.service";
 import { iDeleteCredential,iGetCredential,iGetPersonalCredentials,iPostUpdateCredential,iDeletePersonalCredential,iPostUpdatePersonalCredential } from "../../interfaces/Credential/credential";
 import { iDeleteCertificate,iGetCertificate } from "../../interfaces/Certificate/certificate"
 import { ReactiveFormsModule, FormControl, FormGroup, Validators, FormsModule} from '@angular/forms';
-import { ValidationMessages } from "../../ValidationMessages";
-import { iPostRequestStatus} from "../../interfaces/PostRequestStatus"
 import { iGetPasswordString } from "../../interfaces/Password/password"
 import { iPersonalFolder } from "../../interfaces/DTOModel/PersonalFolderDTO";
+import { iStatusMessage,iStatus,StatusMessage } from "../../utility/iStatusMessage";
+import { ValidationMessages } from "../../StaticObjects/ValidationMessages";
 
 @Component({
     selector: 'workAreaBody',
@@ -20,7 +20,7 @@ import { iPersonalFolder } from "../../interfaces/DTOModel/PersonalFolderDTO";
     imports: [NgFor,NgIf,ClipboardModule,CommonModule,ReactiveFormsModule],
     
 })
-export class WorkAreaBody extends ValidationMessages {
+export class WorkAreaBody {
     @Input() certificates: iGetCertificate[] = [];
     @Input() credentials: iGetCredential[] = []
     @Input() personalcredentials: iGetPersonalCredentials[]=[]
@@ -28,7 +28,7 @@ export class WorkAreaBody extends ValidationMessages {
     @Input() selectTab: iSelectTabTabs = {credentialsTab: true, certificatesTab: false, privateTab: false}
     
     deleteModalName: string = ""
-    responseStatus: iPostRequestStatus = {status: "", errorMessage: ""}
+    RequestStatus: iStatusMessage = {status: "", statusMessage: ""}
     deleteCertificateItem: iDeleteCertificate = {teamid: "", id:""}
     deleteCredentialItem: iDeleteCredential = {teamid: "", id:""}
     deletePersonalItem: iDeletePersonalCredential = {id: "", personalfolderid: null}
@@ -44,7 +44,8 @@ export class WorkAreaBody extends ValidationMessages {
         email: new FormControl("",[Validators.email]),
         password: new FormControl(""),
         remote: new FormControl(""),
-        note: new FormControl("")
+        note: new FormControl(""),
+        teamid: new FormControl("",[Validators.required])
     })
 
     updatePersonalCredentialForm = new FormGroup({
@@ -59,9 +60,7 @@ export class WorkAreaBody extends ValidationMessages {
         note: new FormControl("")
     })
 
-    constructor(private connectionService: ConnectionService, private jwtService: JwtService) {
-        super();
-     }
+    constructor(private connectionService: ConnectionService, public validationMessage: ValidationMessages, private statusMessage: StatusMessage) {}
     ShowPassword(type:string, id: string, teamid?:string)
     {
         const eye = document.getElementById(`${id}-eye`)
@@ -132,42 +131,35 @@ export class WorkAreaBody extends ValidationMessages {
 
     async GetCredentialPasswordById(id:string, teamid?:string) {
         
-        let postpasswordRequest:iGetPasswordString ={parentid: '',id: ''}
         if(teamid != null && teamid != undefined)
         {
-            postpasswordRequest.id = id
-            postpasswordRequest.parentid = teamid
+            const password = await this.connectionService.GET(api_endpoints.getcredentialpassword.concat(`${id}/${teamid}`))
+            return password.password
         }
-        const password = await this.connectionService.postItem(api_endpoints.GetCredentialPasswordById,postpasswordRequest)
-        return password.password
+
     }
 
     async GetCertificatePasswordById(id:string, teamid?:string) {
         let postpasswordRequest:iGetPasswordString ={parentid: '',id: ''}
         if(teamid != null && teamid != undefined)
         {
-
-            postpasswordRequest.id = id
-            postpasswordRequest.parentid = teamid
+            const password = await this.connectionService.GET(api_endpoints.getcertificatepassword.concat(`${id}/${teamid}`))
+            return password.password
         }
-        const password = await this.connectionService.postItem(api_endpoints.GetCertificatePasswordById,postpasswordRequest)
-        return password.password
+
      }
 
     async GetPersonalCredentialPasswordById(id: string, personalFolder?: string)
     {
-        let postpasswordRequest: iGetPasswordString = {parentid: null,id: ""}
+
         if(personalFolder != null && personalFolder != undefined)
         {
-            postpasswordRequest.id = id
-            postpasswordRequest.parentid = personalFolder
-            const password = await this.connectionService.postItem(api_endpoints.GetPersonalPasswordById,postpasswordRequest)
+            const password = await this.connectionService.GET(api_endpoints.getpersonalpassword.concat(`${id}/${personalFolder}`))
             return password.password
         }
         else
         {
-            postpasswordRequest.id = id
-            const password = await this.connectionService.postItem(api_endpoints.GetPersonalPasswordById,postpasswordRequest)
+            const password = await this.connectionService.GET(api_endpoints.getpersonalpassword.concat(`${id}`))
             return password.password
         }
     }
@@ -182,15 +174,16 @@ export class WorkAreaBody extends ValidationMessages {
             ,10000))
     }
 
-    async OpenUpdateCredentialModal(modalid: string, credid: string)
+    async OpenUpdateCredentialModal(modalid: string, credid: string, teamid: string)
     {
 
-        this.updateCredential = await this.connectionService.getItems(api_endpoints.GetCredentialById.concat(credid)).then(resolve => resolve as iGetCredential)
+        this.updateCredential = await this.connectionService.GET(api_endpoints.credential.concat(`?tid=${teamid}&credid=${credid}`)).then(resolve => resolve as iGetCredential)
         this.updateCredentialForm.controls.id.setValue(this.updateCredential.id)
         this.updateCredentialForm.controls.domain.setValue(this.updateCredential.domain)
         this.updateCredentialForm.controls.username.setValue(this.updateCredential.username)
         this.updateCredentialForm.controls.email.setValue(this.updateCredential.email)
         this.updateCredentialForm.controls.remote.setValue(this.updateCredential.remote)
+        this.updateCredentialForm.controls.teamid.setValue(teamid)
         this.updateCredentialForm.controls.note.setValue(this.updateCredential.note);
         ($(`#${modalid}`) as any).modal('show');
     }
@@ -198,8 +191,8 @@ export class WorkAreaBody extends ValidationMessages {
     async OpenUpdatePersonalCredentialModal(modalid: string, personalFolder: string = "",credid: string)
     {
         await Promise.allSettled([
-            this.connectionService.postItem(api_endpoints.GetPersonalCredentialById,{id: credid, personalfolderid: personalFolder}),
-            this.connectionService.getItems(api_endpoints.getPersonalCredentialsFoldersByUserID)
+            this.connectionService.GET(api_endpoints.personalcredential.concat("?pfid=",personalFolder,"&credid=",credid)),
+            this.connectionService.GET(api_endpoints.personalfolder)
         ]).then((resolve) =>{
             if(resolve[0].status == 'fulfilled' && resolve[1].status == 'fulfilled' )
             {
@@ -213,13 +206,11 @@ export class WorkAreaBody extends ValidationMessages {
         this.updatePersonalCredentialForm.controls.email.setValue(this.updatePersonalCredential.email)
         this.updatePersonalCredentialForm.controls.remote.setValue(this.updatePersonalCredential.remote)
         this.updatePersonalCredentialForm.controls.personalFolderId.setValue(this.updatePersonalCredential.personalfolderid)
-        this.updatePersonalCredentialForm.controls.originalpersonalFolderId.setValue(this.updatePersonalCredential.personalfolderid)
+        this.updatePersonalCredentialForm.controls.originalpersonalFolderId.setValue(personalFolder)
         this.updatePersonalCredentialForm.controls.note.setValue(this.updatePersonalCredential.note);
 
         ($(`#${modalid}`) as any).modal('show');
     }
-
-
     
     async UpdatePersonalCredential()
     {
@@ -246,7 +237,7 @@ export class WorkAreaBody extends ValidationMessages {
             }
         }
 
-        this.responseStatus = (await this.connectionService.postItem(api_endpoints.UpdatePersonal,postUpdateCredential) as iPostRequestStatus)
+        this.RequestStatus = await this.statusMessage.GetResponse(await this.connectionService.PUT(api_endpoints.personalcredential,postUpdateCredential) as iStatus)
     }
 
     async UpdateCredentail()
@@ -258,24 +249,25 @@ export class WorkAreaBody extends ValidationMessages {
             email: this.updateCredentialForm.value.email||"",
             remote: this.updateCredentialForm.value.remote||"",
             note: this.updateCredentialForm.value.note||"",
-            password: this.updateCredentialForm.value.password||""
+            password: this.updateCredentialForm.value.password||"",
+            teamid: this.updateCredentialForm.value.teamid||""
 
         }
-        this.responseStatus = (await this.connectionService.postItem(api_endpoints.UpdateCredential,postUpdateCredential) as iPostRequestStatus)
+        this.RequestStatus = await this.statusMessage.GetResponse(await this.connectionService.PUT(api_endpoints.credential,postUpdateCredential) as iStatus)
     }
 
-    async CopyPassword(type:string, id:string)
+    async CopyPassword(type:string, id:string, teamid?:string)
     {
         switch (type)
         {
             case "cert":
-                navigator.clipboard.writeText((await this.GetCertificatePasswordById(id)).trim())
+                navigator.clipboard.writeText((await this.GetCertificatePasswordById(id,teamid)).trim())
                 break;
             case "cred":
-                navigator.clipboard.writeText((await this.GetCredentialPasswordById(id) as string).trim())
+                navigator.clipboard.writeText((await this.GetCredentialPasswordById(id,teamid)).trim())
                 break;
             case "personalCred":
-                //navigator.clipboard.writeText((await this.GetPersonalCredentialPasswordById(id) as string).trim())
+                navigator.clipboard.writeText((await this.GetPersonalCredentialPasswordById(id,teamid)).trim())
                 break;
         }
 
@@ -287,10 +279,10 @@ export class WorkAreaBody extends ValidationMessages {
         switch(type)
         {
             case "personal":
-                this.responseStatus = (await this.connectionService.DeleteItem(api_endpoints.DeletePersonalCredential, this.deletePersonalItem))
+                this.RequestStatus = await this.statusMessage.GetResponse(await this.connectionService.DELETE(api_endpoints.personalcredential.concat(`/${this.deletePersonalItem.id}/${this.deletePersonalItem.personalfolderid}`)))
                 break;
             case "team":
-                this.responseStatus = (await this.connectionService.DeleteItem(api_endpoints.DeleteCredential, this.deleteCredentialItem))
+                this.RequestStatus = await this.statusMessage.GetResponse(await this.connectionService.DELETE(api_endpoints.credential.concat(`${this.deleteCredentialItem.id}/${this.deleteCredentialItem.teamid}`)))
                 break;
         }
         
@@ -298,7 +290,7 @@ export class WorkAreaBody extends ValidationMessages {
 
     async DeleteCertificate()
     {
-        this.responseStatus = (await this.connectionService.DeleteItem(api_endpoints.DeleteCertificate, this.deleteCertificateItem))
+        this.RequestStatus = await this.statusMessage.GetResponse(await this.connectionService.DELETE(api_endpoints.certificate.concat(`${this.deleteCertificateItem.id}/${this.deleteCertificateItem.teamid}`)))
     }
 
     OpenDeleteCredentialModal(modalid: string, type:string, domain: string, username: string, parentid: string,credentialid: string)
@@ -306,14 +298,14 @@ export class WorkAreaBody extends ValidationMessages {
         switch(type)
         {
             case "personal":
-                this.responseStatus = {status: "", errorMessage: ""}
+                this.RequestStatus = {status: "", statusMessage: ""}
                 this.deletePersonalItem = {personalfolderid: parentid, id:credentialid}
                 this.deleteModalName = domain+"\\"+username;
                 this.deleteType = type;
                 ($(`#${modalid}`) as any).modal('show');
                 break;
             case "team":
-                this.responseStatus = {status: "", errorMessage: ""}
+                this.RequestStatus = {status: "", statusMessage: ""}
                 this.deleteCredentialItem = {teamid: parentid, id:credentialid}
                 this.deleteModalName = domain+"\\"+username;
                 this.deleteType = type;
@@ -333,12 +325,12 @@ export class WorkAreaBody extends ValidationMessages {
     CloseModal(modalid: string)
     {
         ($(`#${modalid}`) as any).modal('hide')
-        this.responseStatus = {status: "",errorMessage:""}
+        this.RequestStatus = {status: "",statusMessage:""}
     }
 
     async DownloadCertificate(_certificateId: string, _teamId: string)
     {
-        let url = api_endpoints.DownloadCertificate.concat(_teamId).concat("/").concat(_certificateId)
+        let url = api_endpoints.certificatedownload.concat(_teamId).concat("/").concat(_certificateId)
         let test = ""
         await fetch(url,{
             headers: {
@@ -370,7 +362,7 @@ export class WorkAreaBody extends ValidationMessages {
 
     async DownloadCertificateKey(_certificateId: string, _teamId: string)
     {
-        let url = api_endpoints.DownloadKey.concat(_teamId).concat("/").concat(_certificateId)
+        let url = api_endpoints.certificatekeydownload.concat(_teamId).concat("/").concat(_certificateId)
         let test = ""
         await fetch(url,{
             headers: {

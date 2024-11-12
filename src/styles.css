@@ -31,3 +31,12 @@ td
 {
 	padding: 0.5rem
 }
+
+.resetpassword
+{
+	display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-image: url('assets/reset-password-1-32.png');
+    background-size: cover;
+}

@@ -23,9 +23,9 @@
                     <td style="background-color: white !important;">{{item.note}}</td>
                     <td style="background-color: white !important;" class="nospaceincell">
                         <p id={{item.id}} class="d-inline"></p>&nbsp;
-                        <i class="bi bi-copy ml-1" (click) = "CopyPassword('cred',item.id)"></i>&nbsp;
+                        <i class="bi bi-copy ml-1" (click) = "CopyPassword('cred',item.id,item.teamid)"></i>&nbsp;
                         <i type="cred" id={{item.id}}-eye class="bi bi-eye" (click) = "ShowPassword('cred',item.id,item.teamid)"></i>&nbsp;
-                        <i class="bi bi-pencil" (click) = "OpenUpdateCredentialModal('UpdateCredential',item.id)"></i>&nbsp;
+                        <i class="bi bi-pencil" (click) = "OpenUpdateCredentialModal('UpdateCredential',item.id,item.teamid)"></i>&nbsp;
                         <i class="bi bi-trash" (click) = "OpenDeleteCredentialModal('DeleteCredential','team', item.domain||'', item.username, item.teamid||'', item.id)"></i> &nbsp;
                     </td>
                 </tr>
@@ -68,7 +68,7 @@
                 }
                 @else
                 {
-                    <i class="bi bi-copy ml-1"  (click) = "CopyPassword('cert',item.id)"></i>&nbsp;
+                    <i class="bi bi-copy ml-1"  (click) = "CopyPassword('cert',item.id,item.teamid)"></i>&nbsp;
                     <i type="cert" id={{item.id}}-eye class="bi bi-eye" (click) = "ShowPassword('cert',item.id,item.teamid)"></i> &nbsp;
                     <i class="bi bi-save" (click)="DownloadCertificate(item.id,item.teamid)"></i> &nbsp;
                     <i class="bi bi-trash" (click) = "OpenDeleteCertificateModal('DeleteCertificate',item.issuedto,item.teamid,item.id)"></i> &nbsp;
@@ -99,8 +99,8 @@
                 <td style="background-color: white !important;">{{item.note}}</td>
                 <td class="nospaceincell" style="background-color: white !important;">
                     <p id={{item.id}} class="d-inline">{{item.password}}</p>&nbsp;
-                    <i class="bi bi-copy ml-1" (click) = "CopyPassword('cred',item.id)"></i>&nbsp;
-                    <i type="cred" id={{item.id}}-eye class="bi bi-eye" (click) = "ShowPassword('personalCred',item.id)"></i>
+                    <i class="bi bi-copy ml-1" (click) = "CopyPassword('personalCred',item.id,item.personalfolderid||undefined)"></i>&nbsp;
+                    <i type="cred" id={{item.id}}-eye class="bi bi-eye" (click) = "ShowPassword('personalCred',item.id, item.personalfolderid||undefined)"></i>
                 </td>
                 <td class="nospaceincell" style="background-color: white !important;">
                     <i class="bi bi-pencil" (click) = "this.OpenUpdatePersonalCredentialModal('EditPersonalCredential',item.personalfolderid||undefined,item.id)"></i>&nbsp;
@@ -116,24 +116,24 @@
 @if(selectTab.credentialsTab)
 {
   <!-- Edit Credential -->
-  <div class="modal" tabindex="-1" role="dialog" id="UpdateCredential"> 
+  <div class="modal" tabindex="-1" role="dialog" id="UpdateCredential">  
     <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document"> 
       <div class="modal-content"> 
         <div class="modal-header btn-ns"> 
           <h4 class="modal-title">Update Credential</h4> 
         </div> 
         <div class="modal-body"> 
-            @if(this.responseStatus.status === "OK")
+            @if(RequestStatus.status === "OK")
             {
-                <div class="alert alert-success" role="alert">
-                    Credential successfully updated
-                  </div>
+              <div class="alert alert-success">
+                <p>{{RequestStatus.statusMessage}}</p>
+              </div>
             }
-            @else if (this.responseStatus.status === "KO")
+            @else if(RequestStatus.status === "NOTOK")
             {
-                <div class="alert alert-danger" role="alert">
-                    Failed to updated credential - {{this.responseStatus.errorMessage}}
-                </div>
+              <div class="alert alert-danger">
+                <p>{{RequestStatus.statusMessage}}</p>
+              </div>
             }
 
           <form [formGroup]="this.updateCredentialForm" >
@@ -146,12 +146,11 @@
                     </div>
                   
                 </div>
-                @if(this.updateCredentialForm.controls.domain.invalid && this.updateCredentialForm.controls.domain.dirty)
+                @if(this.updateCredentialForm.controls.domain.dirty && this.updateCredentialForm.controls.domain.invalid)
                 {
-                    <div class="row">
-                        <p class="text-danger text-center">{{this.AlphanumericStringVM("Domain")}}</p>
-                        
-                    </div>
+                  <div class="row">
+                    <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidUserName")}}</p>
+                  </div>
                 }
 
 
@@ -163,12 +162,13 @@
                         <input formControlName="username" class="w-100 form-control" type="text" value={{this.updateCredentialForm.value.username}}>
                     </div>
                 </div>
-                @if(this.updateCredentialForm.controls.username.invalid && this.updateCredentialForm.controls.username.dirty)
+                @if(this.updateCredentialForm.controls.username.dirty && this.updateCredentialForm.controls.username.invalid)
                 {
-                    <div class="row">
-                        <p class="text-danger text-center">{{this.AlphanumericStringVM("Username")}}</p>
-                    </div>
+                  <div class="row">
+                    <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidUserName")}}</p>
+                  </div>
                 }
+
                 <div class="row m-2">
                     <div class="col-4 text-end">
                         <p>Password <span *ngIf="updateCredentialForm.controls.password.invalid" class="text-danger">*</span></p>
@@ -188,12 +188,14 @@
                     </div>
 
                 </div>
-                @if(this.updateCredentialForm.controls.email.invalid && this.updateCredentialForm.controls.email.dirty)
+                @if(this.updateCredentialForm.controls.email.dirty && this.updateCredentialForm.controls.email.invalid)
                 {
-                    <div class="row">
-                        <p class="text-danger text-center">{{this.emailVM}}</p>
-                    </div>
+                  <div class="row">
+                    <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidEmail")}}</p>
+                  </div>
                 }
+
+
                 <div class="row m-2">
                     <div class="col-4 text-end ">
                         <p>Remote</p>
@@ -239,23 +241,23 @@ id="DeleteCredential">
       <h4 class="modal-title">Delete Credential</h4> 
     </div> 
     <div class="modal-body"> 
-        @if(responseStatus.status === "OK")
+        @if(RequestStatus.status === "OK")
         {
-            <div class="alert alert-success" role="alert">
-                Credential successfully added
-              </div>
+          <div class="alert alert-success">
+            <p>{{RequestStatus.statusMessage}}</p>
+          </div>
         }
-        @else if (responseStatus.status === "KO")
+        @else if(RequestStatus.status === "NOTOK")
         {
-            <div class="alert alert-danger" role="alert">
-                Failed to add credential {{this.responseStatus.errorMessage}}
-            </div>
+          <div class="alert alert-danger">
+            <p>{{RequestStatus.statusMessage}}</p>
+          </div>
         }
         Do you want to delete {{deleteModalName}}?
     </div> 
     <div class="modal-footer"> 
         <button type="button" class="btn btn-ns" (click) = "DeleteCredential(this.deleteType)">Delete credential </button>
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal"> 
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" (click) = "CloseModal('DeleteCredential')"> 
           Close 
         </button> 
     </div> 
@@ -276,17 +278,17 @@ id="DeleteCertificate">
       <h4 class="modal-title">Delete Certificate</h4> 
     </div> 
     <div class="modal-body"> 
-        @if(this.responseStatus.status === "OK")
+        @if(RequestStatus.status === "OK")
         {
-            <div class="alert alert-success" role="alert">
-                Certificate successfully deleted
-              </div>
+          <div class="alert alert-success">
+            <p>{{RequestStatus.statusMessage}}</p>
+          </div>
         }
-        @else if (responseStatus.status === "KO")
+        @else if(RequestStatus.status === "NOTOK")
         {
-            <div class="alert alert-danger" role="alert">
-                Failed to delete certificate {{this.responseStatus.errorMessage}}
-            </div>
+          <div class="alert alert-danger">
+            <p>{{RequestStatus.statusMessage}}</p>
+          </div>
         }
         Do you want to delete {{deleteModalName}}?
     </div> 
@@ -309,17 +311,17 @@ id="DeleteCertificate">
           <h4 class="modal-title">Edit Credential</h4> 
         </div> 
         <div class="modal-body"> 
-            @if(responseStatus.status === "OK")
+            @if(RequestStatus.status === "OK")
             {
-                  <div class="alert alert-success" role="alert">
-                      Credential successfully added
-                    </div>
+              <div class="alert alert-success">
+                <p>{{RequestStatus.statusMessage}}</p>
+              </div>
             }
-            @else if (responseStatus.status === "KO")
+            @else if(RequestStatus.status === "NOTOK")
             {
-                  <div class="alert alert-danger" role="alert">
-                      Failed to add credential - {{this.responseStatus.errorMessage}}
-                  </div>
+              <div class="alert alert-danger">
+                <p>{{RequestStatus.statusMessage}}</p>
+              </div>
             }
           <form [formGroup]="updatePersonalCredentialForm">
             <div class="row mt-2 me-2">
@@ -330,12 +332,13 @@ id="DeleteCertificate">
                     <input formControlName="domain" class="w-100 form-control" type="text" value={{this.updatePersonalCredentialForm.value.domain}}>
                 </div>
             </div>
-            @if(this.updatePersonalCredentialForm.controls.domain.invalid && this.updatePersonalCredentialForm.controls.domain.dirty)
+            @if(this.updatePersonalCredentialForm.controls.domain.dirty && this.updatePersonalCredentialForm.controls.domain.invalid)
             {
-                <div class="row mt-2">
-                    <p class="text-danger text-center">{{this.AlphanumericStringVM("Domain")}}</p>
-                </div>
+              <div class="row">
+                <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidUserName")}}</p>
+              </div>
             }
+
             <div class="row mt-2 me-2">
                 <div class="col-4 text-end">
                     <p>Username <span *ngIf="updatePersonalCredentialForm.controls.username.invalid" class="text-danger">*</span></p>
@@ -345,12 +348,13 @@ id="DeleteCertificate">
                 </div>
                     
             </div>
-            @if(this.updatePersonalCredentialForm.controls.username.invalid && this.updatePersonalCredentialForm.controls.username.dirty)
+            @if(this.updatePersonalCredentialForm.controls.username.dirty && this.updatePersonalCredentialForm.controls.username.invalid)
             {
-                <div class="row me-2 mt-2">
-                    <p class="text-danger text-center">{{this.AlphanumericStringVM("Username")}}</p>
-                </div>
+              <div class="row">
+                <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidUserName")}}</p>
+              </div>
             }
+
             <div class="row mt-2 me-2">
                 <div class="col-4 text-end">
                     <p>Password <span *ngIf="updatePersonalCredentialForm.controls.password.invalid" class="text-danger">*</span></p>
@@ -369,11 +373,11 @@ id="DeleteCertificate">
                 </div>
                     
             </div>
-            @if(this.updatePersonalCredentialForm.controls.email.invalid && this.updatePersonalCredentialForm.controls.email.dirty)
+            @if(this.updatePersonalCredentialForm.controls.email.dirty && this.updatePersonalCredentialForm.controls.email.invalid)
             {
-                <div class="row me-2 mt-2">
-                    <p class="text-danger text-center">{{this.emailVM}}</p>
-                </div>
+              <div class="row">
+                <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidEmail")}}</p>
+              </div>
             }
             
             <div class="row mt-2 me-2">

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ReactiveFormsModule, FormControl, FormGroup } from '@angular/forms';
+import { ReactiveFormsModule, FormControl, FormGroup,Validators } from '@angular/forms';
 import { AuthService } from './login.service';
 import { Router  } from '@angular/router';
 import { JwtService } from '../utility/jwt.service';
@@ -13,8 +13,8 @@ import { JwtService } from '../utility/jwt.service';
   })
   export class LoginComponent {
     loginGroup = new FormGroup({
-        username: new FormControl(''),
-        password: new FormControl('')
+        username: new FormControl('',[Validators.required,Validators.pattern("^[a-zA-Z0-9-_]*$")]),
+        password: new FormControl('',[Validators.required])
     })
 
     loginStatusFailure: string = ""

@@ -7,26 +7,27 @@ import { iSelectTabTabs } from "../../interfaces/relationshipInterfaces/SelectNa
 import { ConnectionService } from "../../utility/connection.service";
 import { api_endpoints } from "../../StaticObjects/api_endpoints";
 import { iClientTeamMapping } from "../../interfaces/Team/Team";
-import { iPostRequestStatus } from "../../interfaces/PostRequestStatus";
 import { iPersonalFolder, iPostPersonalFolder } from "../../interfaces/DTOModel/PersonalFolderDTO";
 import { iGetUserForTeamModal } from "../../interfaces/User/User";
 import { iPostGiveCredential,iPostPersonalCredential,iPostCredential } from "../../interfaces/Credential/credential";
 import { JwtService } from "../../utility/jwt.service";
 import { CertificateTypeInput } from "../../interfaces/Certificate/certtypeinput";
-import { ValidationMessages } from "../../ValidationMessages";
+
+import { iStatusMessage, iStatus, StatusMessage } from "../../utility/iStatusMessage";
+import { ValidationMessages } from "../../StaticObjects/ValidationMessages"
 
 @Component({
     selector: 'workAreaHeader',
     templateUrl: './workAreaHeader.component.html',
     standalone: true,
     imports: [NgIf,NgFor,CommonModule,ReactiveFormsModule,NgSwitch,NgSwitchCase, NgSwitchDefault],
-    providers: [ConnectionService,JwtService,ValidationMessages]
+    providers: [ConnectionService,JwtService]
     
 })
-export class WorkAreaHeader extends ValidationMessages { 
+export class WorkAreaHeader { 
     @Input() selectTab: iSelectTabTabs = {credentialsTab: true, certificatesTab: false, privateTab: false}
     itemList: any
-    responseStatus: iPostRequestStatus = {status: "",errorMessage: ""}
+    RequestStatus: iStatusMessage = {status: "",statusMessage: ""}
 
     searchForm = new FormGroup({
         searchString: new FormControl("",[Validators.pattern("^[a-zA-Z0-9_-]*$")])
@@ -67,9 +68,14 @@ export class WorkAreaHeader extends ValidationMessages {
     })
     
     addPersonalFolderFormGroup = new FormGroup({
-        addPersonalFolder: new FormControl('',[Validators.required,Validators.pattern("^[a-zA-Z0-9]*$")])
+        folderName: new FormControl('',[Validators.required,Validators.pattern("^[a-zA-Z0-9]*$")])
     })
     
+    updatePersonalFolderFormGroup = new FormGroup({
+        id: new FormControl('',[Validators.required]),
+        folderName: new FormControl('',[Validators.required,Validators.pattern("^[a-zA-Z0-9]*$")])
+    })
+
     allPartUserList: iGetUserForTeamModal[] = []
     clientTeamMappingList: iClientTeamMapping[] = []
     
@@ -92,9 +98,7 @@ export class WorkAreaHeader extends ValidationMessages {
     })
 
 
-    constructor(private connectionService: ConnectionService,private jwtService: JwtService) {
-        super();
-    }
+    constructor(private connectionService: ConnectionService,public validationMessage: ValidationMessages, private statusMessage: StatusMessage) {}
 
 
     PasswordGeneratorHideModal()
@@ -124,18 +128,18 @@ export class WorkAreaHeader extends ValidationMessages {
 
     async loadUserTeams()
     {
-        let json = (await this.connectionService.getItems(api_endpoints.getAllClientTeamMappingsByUserId))
+        let json = (await this.connectionService.GET(api_endpoints.getteammapping))
         this.itemList  = json as iClientTeamMapping[]
     }
 
     async loadPersonalFolders()
     {
-        this.itemList = (await this.connectionService.getItems(api_endpoints.getPersonalCredentialsFoldersByUserID)) as iPersonalFolder[] 
+        this.itemList = (await this.connectionService.GET(api_endpoints.personalfolder)) as iPersonalFolder[] 
     }
 
     async OpenModalWithData(id: string,datatype: string)
     {
-        this.responseStatus = {status:"",errorMessage:""}
+        this.RequestStatus = {status:"",statusMessage:""}
         switch(datatype)
         {
             case 'teamList': {
@@ -170,8 +174,8 @@ export class WorkAreaHeader extends ValidationMessages {
                     postCredential.teams.push(JSON.parse(temp.value))
                 }
             }
-        let postStatus = await this.connectionService.postItem(api_endpoints.setCredentials,PostCredential) as iPostRequestStatus
-        this.responseStatus = postStatus
+        let postStatus = await this.statusMessage.GetResponse(await this.connectionService.POST(api_endpoints.credential,PostCredential) as iStatus)
+        this.RequestStatus = postStatus
         
     }
 
@@ -186,11 +190,12 @@ export class WorkAreaHeader extends ValidationMessages {
             let temp = radiobutton as HTMLInputElement
             if(temp.checked)
             {
+                console.log(temp.id)
                 postCredential.personalFolderId =  temp.id
             }
         }
-        let postStatus = await this.connectionService.postItem(api_endpoints.setPersonalCredentialByUserID,PostCredential) as iPostRequestStatus
-        this.responseStatus = postStatus
+        let postStatus = await this.statusMessage.GetResponse(await this.connectionService.POST(api_endpoints.personalcredential,PostCredential) as iStatus)
+        this.RequestStatus = postStatus
     }
 
     UncheckAllAddCredentialCheckboxes()
@@ -234,20 +239,20 @@ export class WorkAreaHeader extends ValidationMessages {
     CloseModal(modalid: string)
     {
         ($(`#${modalid}`) as any).modal('hide')
-        this.responseStatus = {status: "", errorMessage:""}
+        this.RequestStatus = {status: "", statusMessage:""}
     }
 
     async AddPersonalFolderByUserId()
     {
-        let addPersonalFolder: iPostPersonalFolder = {name: this.addPersonalFolderFormGroup.controls.addPersonalFolder.value}
-        this.responseStatus = (await this.connectionService.postItem(api_endpoints.setPersonalFolderByUserID,addPersonalFolder) as iPostRequestStatus)
+        let addPersonalFolder: iPostPersonalFolder = {name: this.addPersonalFolderFormGroup.controls.folderName.value}
+        this.RequestStatus = await this.statusMessage.GetResponse(await this.connectionService.POST(api_endpoints.personalfolder,addPersonalFolder) as iStatus)
     }
 
     async GiveCredentialInternallyData()
     {
         Promise.allSettled([
-            this.connectionService.getItems(api_endpoints.getAllClientTeamMappings),
-            this.connectionService.getItems(api_endpoints.GetAllPartUsers)
+            this.connectionService.GET(api_endpoints.getteammapping),
+            this.connectionService.GET(api_endpoints.user)
         ]).then(resolve => {
             if(resolve[0].status == 'fulfilled' && resolve[1].status =='fulfilled')
             {
@@ -311,8 +316,8 @@ export class WorkAreaHeader extends ValidationMessages {
             }
         }
 
-        let postStatus = (await this.connectionService.postItem(api_endpoints.giveCredential,postGiveCredential)) as iPostRequestStatus
-        this.responseStatus = postStatus
+        let postStatus = await this.statusMessage.GetResponse(await this.connectionService.POST(api_endpoints.givecredential,postGiveCredential) as iStatus)
+        this.RequestStatus = postStatus
     }
 
     async UploadCertificate()
@@ -323,16 +328,17 @@ export class WorkAreaHeader extends ValidationMessages {
         switch (data.get("certtype"))
         {
             case 'privatekey':
-                this.privatekeycertificateuploadvalidation(data) ? this.responseStatus= await this.connectionService.postUploadCertificate(api_endpoints.uploadcertificate,data) as iPostRequestStatus: null
+                this.privatekeycertificateuploadvalidation(data) ? this.RequestStatus= await this.statusMessage.GetResponse(await this.connectionService.POSTUpload(api_endpoints.certificate,data) as iStatus): null
+                console.log(this.RequestStatus)
                 break;
             case 'publicprivatekey':
-                this.publicprivatekeycertificateuploadvalidation(data) ? this.responseStatus= await this.connectionService.postUploadCertificate(api_endpoints.uploadcertificate,data) as iPostRequestStatus : null
+                this.publicprivatekeycertificateuploadvalidation(data) ? this.RequestStatus= await this.statusMessage.GetResponse(await this.connectionService.POSTUpload(api_endpoints.certificate,data) as iStatus) : null
+                console.log(this.RequestStatus)
                 break;
             default:
                 break;
         }
 
-        this.CloseModal("UploadCertificate")
     }
 
     ChooseUploadCertificateType()
@@ -440,15 +446,40 @@ export class WorkAreaHeader extends ValidationMessages {
         return false
     }
 
-    async DeletePersonalFolder()
+    async DeletePersonalFolder(name: string,id: string)
     {
-        let output: string[] = []
-        let checkboxes = document.getElementsByClassName("deletepersoanlFolderList") as HTMLCollectionOf<HTMLInputElement>
-        for(let checkbox of checkboxes)
+        this.RequestStatus = {status: "", statusMessage: ""}
+        if(confirm(`Do you want to delete the ${name} personal folder?`))
         {
-            checkbox.checked ? output.push(checkbox.value): null
+            this.RequestStatus = await this.connectionService.DELETE(api_endpoints.personalfolder.concat(`${id}`)) as iStatusMessage
+        }
+    }
+
+    async UpdatePersonalFolderModal(name: string,id: string)
+    {
+        this.CloseModal("ManagePersonalFolderModal");
+        let updateFolderName = document.getElementById("updateFolderName") as HTMLInputElement
+        
+        if(updateFolderName != null)
+        {
+            updateFolderName.value = name;
+            this.updatePersonalFolderFormGroup.controls.id.setValue(id);
+            this.updatePersonalFolderFormGroup.controls.folderName.setValue(name);
         }
 
-        this.responseStatus = await this.connectionService.DeleteItem(api_endpoints.DeletePersonalFolder,{personalFolderIds: output}) as iPostRequestStatus
+
+        ($('#UpdateFolder') as any).modal('show');
+        
+    }
+
+    async UpdatePersonalFolder()
+    {
+
+        let id = this.updatePersonalFolderFormGroup.controls.id.value
+        if(id != null)
+        {
+            this.RequestStatus = await this.statusMessage.GetResponse(await this.connectionService.PUT(api_endpoints.personalfolder.concat(id),{name: this.updatePersonalFolderFormGroup.controls.folderName.value} as iPostPersonalFolder) as iStatus)
+        }
+        
     }
 }

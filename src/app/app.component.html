@@ -32,18 +32,18 @@ id="ChangePassword">
       <h4 class="modal-title">Change Password</h4> 
     </div> 
     <div class="modal-body"> 
-        @if(responseStatus === "OK")
-        {
-            <div class="alert alert-success" role="alert">
-                Password Successfully changed
-              </div>
-        }
-        @else if (responseStatus === "KO")
-        {
-            <div class="alert alert-danger" role="alert">
-                Faild to change Password
-            </div>
-        }
+      @if(RequestStatus.status === "OK")
+      {
+        <div class="alert alert-success">
+          <p>{{RequestStatus.statusMessage}}</p>
+        </div>
+      }
+      @else if(RequestStatus.status === "NOTOK")
+      {
+        <div class="alert alert-danger">
+          <p>{{RequestStatus.statusMessage}}</p>
+        </div>
+      }
         <form [formGroup]="ChangePasswordFormGroup">
           <div class="row mt-3">
             <input type="password" placeholder="Current Password" class="form-control" formControlName="oldpassword">
