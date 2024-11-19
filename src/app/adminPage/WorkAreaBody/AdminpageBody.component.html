@@ -38,20 +38,17 @@
     </thead>
     <tbody>
         <tr *ngFor="let item of tableData.users" style="background-color: #15dffd !important;">
-          @if(this.GetUserId() !== item.id)
-          {
-            <td style="background-color: white !important;">{{item.firstname}}</td>
-            <td style="background-color: white !important;">{{item.lastname}}</td>
-            <td style="background-color: white !important;">{{item.email}}</td>
-            <td style="background-color: white !important;">{{item.username}}</td>
-            <td style="background-color: white !important;" class="nospaceincell">{{item.createdate}}</td>
-            <td style="background-color: white !important;" class="nospaceincell">{{item.updatedate}}</td>
-            <td class="nospaceincell" style="background-color: white !important;">
-                <i class="resetpassword" (click) = "UserPasswordReset(item.id)"></i>&nbsp;
-                <i id="{{item.id}}-edit" class="bi bi-pencil" (click) = "OpenUserModal(item.id)"></i>&nbsp;
-                <i id="{{item.id}}-delete" class="bi bi-trash"(click) = "DeleteModal(item.id,item.username,'user')"></i>
-            </td>
-          }
+          <td style="background-color: white !important;">{{item.firstname}}</td>
+          <td style="background-color: white !important;">{{item.lastname}}</td>
+          <td style="background-color: white !important;">{{item.email}}</td>
+          <td style="background-color: white !important;">{{item.username}}</td>
+          <td style="background-color: white !important;" class="nospaceincell">{{item.createdate}}</td>
+          <td style="background-color: white !important;" class="nospaceincell">{{item.updatedate}}</td>
+          <td class="nospaceincell" style="background-color: white !important;">
+              <i class="resetpassword" (click) = "UserPasswordReset(item.id)"></i>&nbsp;
+              <i id="{{item.id}}-edit" class="bi bi-pencil" (click) = "OpenUserModal(item.id)"></i>&nbsp;
+              <i id="{{item.id}}-delete" class="bi bi-trash"(click) = "DeleteModal(item.id,item.username,'user')"></i>
+          </td>
 
         </tr>
     </tbody>

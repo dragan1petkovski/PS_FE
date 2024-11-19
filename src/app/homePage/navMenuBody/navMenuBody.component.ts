@@ -4,6 +4,9 @@ import { iGetCertificate } from "../../interfaces/Certificate/certificate";
 import { iSelectTabTabs } from "../../interfaces/relationshipInterfaces/SelectNavTabs";
 import { api_endpoints } from "../../StaticObjects/api_endpoints";
 import { iDataRequest } from "../../interfaces/relationshipInterfaces/CredClientRelation";
+import { SignalRService } from "../../SignalR/signalR";
+import { JwtService } from "../../utility/jwt.service";
+import { iUserRegister } from "../../interfaces/SignalR/UserRegister";
 
 @Component({
     selector: 'navMenuBody',
@@ -14,17 +17,19 @@ import { iDataRequest } from "../../interfaces/relationshipInterfaces/CredClient
     
 })
 export class navMenuBody {
+    @Input() signalR: SignalRService = new SignalRService;
     @Input() companyItems:any[] = []
     @Input() certItems:iGetCertificate[] = []
     @Input() selectTab: iSelectTabTabs = {credentialsTab: true, certificatesTab: false, privateTab: false}
     @Output() dataRequest = new EventEmitter<iDataRequest>()
 
-    constructor(){}
+    constructor(private signalr: SignalRService){}
 
     ChangeCredentialList(id: string)
     {
         let datarequest: iDataRequest = {clientid: id,type: "credential"}
-        this.ActiveBtn(id)
+        
+        //this.ActiveBtn(id)
         this.dataRequest.emit(datarequest)
         
     }
@@ -32,7 +37,7 @@ export class navMenuBody {
     ChangeCertificateList(id: string)
     {
         let datarequest: iDataRequest = {clientid: id,type: "certificate"}
-        this.ActiveBtn(id)
+        //this.ActiveBtn(id)
         this.dataRequest.emit(datarequest)
         
     }
@@ -40,18 +45,18 @@ export class navMenuBody {
     ChnagePersonalCredentialList(folderid: string)
     {
         let datarequest: iDataRequest = {clientid: folderid,type: "personal"}
-        this.ActiveBtn(folderid)
+        //this.ActiveBtn(folderid)
         this.dataRequest.emit(datarequest)
     }
 
-    ActiveBtn(id: string)
-    {
-        let companies = document.getElementsByClassName('navbodybtns') as HTMLCollectionOf<HTMLButtonElement>
-        for(let temp of companies)
-        {
-            let company = temp as HTMLButtonElement
-            $(`#${company.id}`).removeClass('active')
-        }
-        $(`#${id}`).addClass('active')
-    }
+    // ActiveBtn(id: string)
+    // {
+    //     let companies = document.getElementsByClassName('navbodybtns') as HTMLCollectionOf<HTMLButtonElement>
+    //     for(let temp of companies)
+    //     {
+    //         let company = temp as HTMLButtonElement
+    //         $(`#${company.id}`).removeClass('active')
+    //     }
+    //     $(`#${id}`).addClass('active')
+    // }
 }

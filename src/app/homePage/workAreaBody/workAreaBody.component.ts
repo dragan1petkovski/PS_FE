@@ -4,7 +4,6 @@ import { iSelectTabTabs } from "../../interfaces/relationshipInterfaces/SelectNa
 import { ConnectionService } from "../../utility/connection.service";
 import { ClipboardModule } from '@angular/cdk/clipboard'
 import { api_endpoints } from '../../StaticObjects/api_endpoints'
-import { JwtService } from "../../utility/jwt.service";
 import { iDeleteCredential,iGetCredential,iGetPersonalCredentials,iPostUpdateCredential,iDeletePersonalCredential,iPostUpdatePersonalCredential } from "../../interfaces/Credential/credential";
 import { iDeleteCertificate,iGetCertificate } from "../../interfaces/Certificate/certificate"
 import { ReactiveFormsModule, FormControl, FormGroup, Validators, FormsModule} from '@angular/forms';
@@ -12,6 +11,7 @@ import { iGetPasswordString } from "../../interfaces/Password/password"
 import { iPersonalFolder } from "../../interfaces/DTOModel/PersonalFolderDTO";
 import { iStatusMessage,iStatus,StatusMessage } from "../../utility/iStatusMessage";
 import { ValidationMessages } from "../../StaticObjects/ValidationMessages";
+import { SignalRService } from "../../SignalR/signalR";
 
 @Component({
     selector: 'workAreaBody',
@@ -21,6 +21,7 @@ import { ValidationMessages } from "../../StaticObjects/ValidationMessages";
     
 })
 export class WorkAreaBody {
+    @Input() signalR: SignalRService = new SignalRService()
     @Input() certificates: iGetCertificate[] = [];
     @Input() credentials: iGetCredential[] = []
     @Input() personalcredentials: iGetPersonalCredentials[]=[]
@@ -59,6 +60,11 @@ export class WorkAreaBody {
         remote: new FormControl(""),
         note: new FormControl("")
     })
+
+    ngOnInit(): void
+    {
+        this.GetSignalRUpdate()
+    }
 
     constructor(private connectionService: ConnectionService, public validationMessage: ValidationMessages, private statusMessage: StatusMessage) {}
     ShowPassword(type:string, id: string, teamid?:string)
@@ -236,7 +242,6 @@ export class WorkAreaBody {
                 postUpdateCredential.personalfolderid = radiobutton.value
             }
         }
-
         this.RequestStatus = await this.statusMessage.GetResponse(await this.connectionService.PUT(api_endpoints.personalcredential,postUpdateCredential) as iStatus)
     }
 
@@ -389,6 +394,68 @@ export class WorkAreaBody {
 
           })
         
+    }
+
+    async GetSignalRUpdate()
+    {
+        this.signalR.GetNotification((message) => {
+            let notification = JSON.parse(message)
+            console.log(notification)
+            switch(notification.status)
+            {
+                case "new":
+                    switch(notification.type)
+                    {
+                        case "credential":
+                            this.credentials.push(notification.data)
+                            break;
+                        case "certificate":
+                            this.certificates.push(notification.data)
+                            break;
+                        case "personal":
+                            this.personalcredentials.push(notification.data)
+                    }
+                    break;
+                case "update":
+                    switch(notification.type)
+                    {
+                        case "credential":
+                            let index = this.credentials.findIndex(c => c.id != notification.data.id) - 1
+                            this.credentials[index].teamid = notification.data.teamid
+                            this.credentials[index].teamname = notification.data.teamname
+                            this.credentials[index].domain = notification.data.domain
+                            this.credentials[index].email = notification.data.email
+                            this.credentials[index].note = notification.data.note
+                            this.credentials[index].remote = notification.data.remote
+                            this.credentials[index].username = notification.data.username
+                            break; 
+                        case "personal":
+                            let pindex = this.personalcredentials.findIndex(c => c.id != notification.data.id) - 1
+                            this.personalcredentials[pindex].personalfolderid = notification.data.teamid
+                            this.personalcredentials[pindex].domain = notification.data.domain
+                            this.personalcredentials[pindex].email = notification.data.email
+                            this.personalcredentials[pindex].note = notification.data.note
+                            this.personalcredentials[pindex].remote = notification.data.remote
+                            this.personalcredentials[pindex].username = notification.data.username
+                            break;
+                    }
+
+                    break;
+                case "delete":
+                    switch(notification.type)
+                    {
+                        case "credential":
+                            this.credentials = this.credentials.filter(c => c.id !== notification.data)
+                            break;
+                        case "certificate":
+                            this.certificates = this.certificates.filter(c => c.id !== notification.data)
+                            break;
+                        case "personal":
+                            this.personalcredentials = this.personalcredentials.filter(c => c.id !== notification.data)
+                    }
+                    break;
+            }
+        })
     }
 
 }

@@ -1,13 +1,13 @@
 <div class="h-100 btn-ns">
       <ul class="nav flex-column">
             <li class="nav-item">
-                  <i class="btn btn-ns bi bi-key" (click) = "GetCredentialsTab()" style="font-size: 2em;" id="getCredentialsTabBtn" ></i>
+                  <i class="btn btn-ns bi bi-key" (click) = "GetCredentialsTab()" style="font-size: 2em;" id="getCredentialsTabBtn" (mouseenter)="GetIfDataExit('credential')"></i>
             </li>
             <li class="nav-item">
-                  <button type="button" class="btn btn-ns" id="getCertificatesTabBtn" (click) = "GetCertificatesTab()"><img src="../../../assets/certificate32.png"></button>
+                  <button type="button" class="btn btn-ns" id="getCertificatesTabBtn" (click) = "GetCertificatesTab()" (mouseenter)="GetIfDataExit('certificate')"><img src="../../../assets/certificate32.png"></button>
             </li>
             <li class="nav-item">
-                  <i class="btn btn-ns bi bi-person" style="font-size: 2em;" id="getPersonalTabBtn" (click) = "GetPersonalTab()"></i>
+                  <i class="btn btn-ns bi bi-person" style="font-size: 2em;" id="getPersonalTabBtn" (click) = "GetPersonalTab()" (mouseenter)="GetIfDataExit('personal')"></i>
             </li>
       </ul>
 </div>

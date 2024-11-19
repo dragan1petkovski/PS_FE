@@ -10,6 +10,7 @@ import { iGetClientsForAdminPage } from "../interfaces/Client/Client";
 import { iGetUserForAdminPage } from "../interfaces/User/User";
 import { iGetTeamForAdminPage } from "../interfaces/Team/Team";
 import { ValidationMessages } from "../StaticObjects/ValidationMessages";
+import { SignalRService } from "../SignalR/signalR";
 
 @Component({
     standalone: true,
@@ -23,11 +24,12 @@ export class AdminageComponent{
     workAreaBodyTable: iAdminTableData = {clients:[],users:[],teams:[]}
     unfilteredWorkAreaBodytable: iAdminTableData = {clients:[],users:[],teams:[]}
 
-    constructor(private connectionService: ConnectionService, public validationMessages: ValidationMessages) {}
+    constructor(private connectionService: ConnectionService, public validationMessages: ValidationMessages, private signalr: SignalRService) {}
 
     async ngOnInit()
     {
-        await this.GetWorkAreaBodyTable(api_endpoints.fullclient)
+        await this.signalr.StartConnection()
+        await this.GetWorkAreaBodyTable(api_endpoints.client.concat("full"))
     }
 
     async getItems(url: string)
@@ -38,21 +40,24 @@ export class AdminageComponent{
 
     async GetWorkAreaBodyTable(url: string)
     {
-        if(url == api_endpoints.fullclient)
+        if(url == api_endpoints.client.concat("full"))
         {
             this.unfilteredWorkAreaBodytable.clients = (await this.getItems(url)) as iGetClientsForAdminPage[]
             this.workAreaBodyTable.clients = this.unfilteredWorkAreaBodytable.clients
+            this.signalr.RegisterAdminLocation(JSON.stringify({type: "client"}))
         }
         else if( url == api_endpoints.user.concat("/all"))
         {
             this.unfilteredWorkAreaBodytable.users = (await this.getItems(url)) as iGetUserForAdminPage[]
             this.workAreaBodyTable.users = this.unfilteredWorkAreaBodytable.users
+            this.signalr.RegisterAdminLocation(JSON.stringify({type: "user"}))
 
         }
         else if( url == api_endpoints.team)
         {
             this.unfilteredWorkAreaBodytable.teams = (await this.getItems(url)) as iGetTeamForAdminPage[]
             this.workAreaBodyTable.teams = this.unfilteredWorkAreaBodytable.teams
+            this.signalr.RegisterAdminLocation(JSON.stringify({type: "team"}))
         }
     }
 

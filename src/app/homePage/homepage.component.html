@@ -1,10 +1,10 @@
 <div class="d-flex d-flex-inline position-absolute container-fluid m-0 p-0 h-100" (mouseleave)="this.EmptyNavBodyData()">
   <div class="m-0 p-0 d-flex d-flex-inline btn-ns">
-      <navMenuHeader (getSelectTab)= "this.GetNavBodydata($event)"></navMenuHeader>
-      <navMenuBody [companyItems] = "navMenuBodyItems" (dataRequest)="GetData($event)" [selectTab]="selectTab"></navMenuBody>
+      <navMenuHeader (getSelectTab)= "this.GetNavBodydata($event)" (getIfDataExit)="ExistingNavBodyData($event)"></navMenuHeader>
+      <navMenuBody [companyItems] = "navMenuBodyItems" (dataRequest)="GetData($event)" [selectTab]="selectTab" ></navMenuBody>
   </div>
   <div class="p-0 m-0 flex-fill" id="workarea"(mouseenter)="this.EmptyNavBodyData()" >
       <workAreaHeader [selectTab] = "selectTab" (searchParameter)="SetSreachString($event)"></workAreaHeader>
-      <workAreaBody [certificates] = "certificateList" [credentials]="credentialList" [personalcredentials]="personalcredentialList" [selectTab] = "selectTab"></workAreaBody>
+      <workAreaBody [signalR] = "ReturnSignalR()" [certificates] = "certificateList" [credentials]="credentialList" [personalcredentials]="personalcredentialList" [selectTab] = "selectTab"></workAreaBody>
   </div>
 </div>

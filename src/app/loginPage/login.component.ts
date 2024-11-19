@@ -3,13 +3,14 @@ import { ReactiveFormsModule, FormControl, FormGroup,Validators } from '@angular
 import { AuthService } from './login.service';
 import { Router  } from '@angular/router';
 import { JwtService } from '../utility/jwt.service';
+import { SignalRService } from '../SignalR/signalR';
 
 @Component({
     selector: 'app-login',
     standalone: true,
     templateUrl: 'login.component.html',
     imports: [ReactiveFormsModule],
-    providers: [AuthService, JwtService]
+    providers: [AuthService, JwtService,SignalRService]
   })
   export class LoginComponent {
     loginGroup = new FormGroup({
@@ -19,7 +20,7 @@ import { JwtService } from '../utility/jwt.service';
 
     loginStatusFailure: string = ""
 
-    constructor(private authService: AuthService, private router: Router, private jwtService: JwtService) {}
+    constructor(private authService: AuthService, private router: Router, private jwtService: JwtService, private signalr: SignalRService) {}
     
     ngOnInit()
     {
@@ -40,12 +41,11 @@ import { JwtService } from '../utility/jwt.service';
           sessionStorage.setItem("jwt",token)
           if(role === "Administrator")
           {
-
+            await   
             this.router.navigate(['/admin'])
           }
           else if(role === "User")
           {
-
             this.router.navigate(['/home'])
           }
           else if(role == undefined)

@@ -40,8 +40,6 @@ export class api_endpoints
     static readonly client = "api/client/"
     static readonly clientcredential = "api/client/credential/"
     static readonly clientcertificate = "api/client/certificate/"
-    static readonly fullclient = "api/client/full/"
-    static readonly partclient = "api/client/part/"
 }
 
 

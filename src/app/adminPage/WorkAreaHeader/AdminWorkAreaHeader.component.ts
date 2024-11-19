@@ -96,7 +96,7 @@ export class AdminWorkAreaHeaderComponent
 
     async GetAllClients()
     {
-        return this.connectionService.GET(api_endpoints.partclient)
+        return this.connectionService.GET(api_endpoints.client.concat("part"))
     }
 
     async GetAllUsers()

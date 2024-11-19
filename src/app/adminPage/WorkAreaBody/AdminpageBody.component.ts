@@ -13,6 +13,7 @@ import { iGetClientsForUser } from "../../interfaces/Client/Client"
 
 import { iStatusMessage,iStatus,StatusMessage } from "../../utility/iStatusMessage";
 import { ValidationMessages } from "../../StaticObjects/ValidationMessages"
+import { SignalRService } from "../../SignalR/signalR";
 
 declare var bootstrap: any
 
@@ -25,7 +26,7 @@ declare var bootstrap: any
 export class AdminpageBodyComponent
 {
 
-    constructor(private connectionService: ConnectionService, private jwtService: JwtService, public validationMessage: ValidationMessages, private statusMessage: StatusMessage) {}
+    constructor(private connectionService: ConnectionService, private jwtService: JwtService, public validationMessage: ValidationMessages, private statusMessage: StatusMessage,private signalr: SignalRService) {}
 
     @Input() currentSelectedTab: iSelectAdminTabs = {clientTab: true, userTab: false, teamTab: false}
     @Input() tableData: iAdminTableData = {clients:[],users:[],teams:[]}
@@ -75,6 +76,62 @@ export class AdminpageBodyComponent
     }
     getAllClienatTeamPairs: iClientTeamMapping[] = []
 
+
+    ngOnInit()
+    {
+        this.signalr.GetAdminNotification((message) =>{
+            let notification = JSON.parse(message)
+            console.log(notification)
+            switch(notification.type)
+            {
+                case 'client':
+                    switch(notification.status)
+                    {
+                        case 'new':
+                            this.tableData.clients.push(notification.data)
+                            break;
+                        case 'update':
+                            let index = this.tableData.clients.findIndex(c => c.id == notification.data.id) - 1
+                            this.tableData.clients[index] = notification.data
+                            break;
+                        case 'delete':
+                            this.tableData.clients = this.tableData.clients.filter(c => c.id != notification.data)
+                            break;
+                    }
+                    break;
+                case 'team':
+                    switch(notification.status)
+                    {
+                        case 'new':
+                            this.tableData.teams.push(notification.data)
+                            break;
+                        case 'update':
+                            let index = this.tableData.teams.findIndex(c => c.id == notification.data.id) - 1
+                            this.tableData.teams[index] = notification.data
+                            break;
+                        case 'delete':
+                            this.tableData.teams = this.tableData.teams.filter(c => c.id != notification.data)
+                            break;
+                    }
+                    break;
+                case 'user':
+                    switch(notification.status)
+                    {
+                        case 'new':
+                            this.tableData.users.push(notification.data)
+                            break;
+                        case 'update':
+                            let index = this.tableData.users.findIndex(c => c.id == notification.data.id) - 1
+                            this.tableData.users[index] = notification.data
+                            break;
+                        case 'delete':
+                            this.tableData.users = this.tableData.users.filter(c => c.id != notification.data)
+                            break;
+                    }
+                    break;
+            }
+        })
+    }
 
 //************ Team ************/
     allUserList: iGetUserForTeamModal[] = []
@@ -129,7 +186,7 @@ export class AdminpageBodyComponent
     async OpenClientModal(id: string)
     {
         this.ClearResponseStatus()
-        let client = await this.connectionService.GET(api_endpoints.fullclient.concat(id)) as iGetClientsForUser
+        let client = await this.connectionService.GET(api_endpoints.client.concat("full/",id)) as iGetClientsForUser
         this.updateClientForm.controls.id.setValue(client.id);
         this.updateClientForm.controls.name.setValue(client.name);
         ($('#EditClientModal')as any).modal('show');

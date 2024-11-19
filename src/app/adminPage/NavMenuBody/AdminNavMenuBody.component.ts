@@ -14,7 +14,7 @@ export class NavMenuHeaderComponent
 
     GetAllClients()
     {
-        this.apiEndpoint.emit(api_endpoints.fullclient)
+        this.apiEndpoint.emit(api_endpoints.client.concat("full"))
         this.currentSelectTab.emit({ clientTab: true, userTab: false, teamTab: false})
         $('#getallClientsBtn').addClass('active')
         $('#getallTeamsBtn').removeClass('active')

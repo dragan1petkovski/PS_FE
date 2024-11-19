@@ -9,13 +9,14 @@ import { iChangePassword } from './interfaces/ChangePassword';
 import { ConnectionService } from './utility/connection.service';
 import { api_endpoints } from './StaticObjects/api_endpoints';
 import { iStatusMessage,iStatus,StatusMessage } from './utility/iStatusMessage';
+import { SignalRService } from './SignalR/signalR';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   templateUrl: './app.component.html',
   imports: [LoginComponent, RouterOutlet, RouterLink,NgIf,ReactiveFormsModule],
-  providers: [JwtService]
+  providers: [JwtService, SignalRService]
 })
 export class AppComponent {
   flag: boolean = false
@@ -28,7 +29,7 @@ export class AppComponent {
     verificationCode: new FormControl('',Validators.pattern("^[0-9]{8}$"))
   })
 
-  constructor(private jwtService: JwtService, private router: Router, private connectionService: ConnectionService, private statusMessage: StatusMessage) {
+  constructor(private jwtService: JwtService, private router: Router, private connectionService: ConnectionService, private statusMessage: StatusMessage, private signalR: SignalRService) {
     router.events.subscribe((event: Event) => {
       
       if(event instanceof NavigationEnd)
@@ -71,9 +72,10 @@ export class AppComponent {
     this.connectionService.GET(api_endpoints.verificationcode)
   }
 
-  SignOut()
+  async SignOut()
   {
     sessionStorage.removeItem("jwt")
+    await this.signalR.CloseConnection();
     this.router.navigate(["/"])
   }
 
