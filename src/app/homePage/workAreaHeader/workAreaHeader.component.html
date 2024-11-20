@@ -244,7 +244,7 @@
                   <p>Domain Name <span *ngIf="addCredentialForm.controls.domain.invalid" class="text-danger">*</span></p>
               </div>
               <div class="col d-flex justify-content-center p-0">
-                  <input formControlName="domain" class="w-100 form-control" type="text">
+                  <input formControlName="domain" class="w-100 form-control" type="text" placeholder="Enter Domain Name">
               </div>
           </div>
           @if(this.addCredentialForm.controls.domain.dirty && this.addCredentialForm.controls.domain.invalid)
@@ -259,7 +259,7 @@
                   <p>Username <span *ngIf="addCredentialForm.controls.username.invalid" class="text-danger">*</span></p>
               </div>
               <div class="col d-flex justify-content-center p-0">
-                  <input formControlName="username" class="w-100 form-control" type="text">
+                  <input formControlName="username" class="w-100 form-control" type="text" placeholder="Enter Username">
               </div>
                   
           </div>
@@ -274,7 +274,7 @@
                   <p>Password <span *ngIf="addCredentialForm.controls.password.invalid" class="text-danger">*</span></p>
               </div>
               <div class="col d-flex justify-content-center p-0">
-                  <input formControlName="password" class="w-100 form-control" type="password">
+                  <input formControlName="password" class="w-100 form-control" type="password" placeholder="Enter Password">
               </div>
                   
           </div>
@@ -299,7 +299,7 @@
                   <p>Remote</p>
               </div>
               <div class="col d-flex justify-content-center p-0">
-                  <input formControlName="remote" class="w-100 form-control" type="text" placeholder="Enter username">
+                  <input formControlName="remote" class="w-100 form-control" type="text" placeholder="Enter Remote">
               </div>
                   
           </div>
@@ -308,7 +308,7 @@
                   <p>Note</p>
               </div>
               <div class="col d-flex justify-content-center p-0">
-                  <input formControlName="note" class="w-100 form-control" type="text" placeholder="Enter username">
+                  <input formControlName="note" class="w-100 form-control" type="text" placeholder="Enter Note">
               </div>
                   
           </div>

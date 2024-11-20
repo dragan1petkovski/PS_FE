@@ -23,7 +23,6 @@ export class SignalRService {
 
   async CloseConnection()
   {
-    console.log("Closing Connection")
     await this.hubConnection.stop();
   }
 
@@ -45,7 +44,6 @@ export class SignalRService {
 
   RegisterAdminLocation(registration: string)
   {
-    console.log(registration)
     this.hubConnection.invoke('RegisterAdminLocation',registration)
   }
 

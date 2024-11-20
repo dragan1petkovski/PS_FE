@@ -12,6 +12,7 @@ import { iPersonalFolder } from "../../interfaces/DTOModel/PersonalFolderDTO";
 import { iStatusMessage,iStatus,StatusMessage } from "../../utility/iStatusMessage";
 import { ValidationMessages } from "../../StaticObjects/ValidationMessages";
 import { SignalRService } from "../../SignalR/signalR";
+import { JwtService } from "../../utility/jwt.service";
 
 @Component({
     selector: 'workAreaBody',
@@ -66,7 +67,7 @@ export class WorkAreaBody {
         this.GetSignalRUpdate()
     }
 
-    constructor(private connectionService: ConnectionService, public validationMessage: ValidationMessages, private statusMessage: StatusMessage) {}
+    constructor(private connectionService: ConnectionService, public validationMessage: ValidationMessages, private statusMessage: StatusMessage, private jwtService: JwtService) {}
     ShowPassword(type:string, id: string, teamid?:string)
     {
         const eye = document.getElementById(`${id}-eye`)
@@ -242,6 +243,10 @@ export class WorkAreaBody {
                 postUpdateCredential.personalfolderid = radiobutton.value
             }
         }
+        if(postUpdateCredential.personalfolderid == "")
+        {
+            postUpdateCredential.personalfolderid = this.updatePersonalCredentialForm.value.originalpersonalFolderId||""
+        }
         this.RequestStatus = await this.statusMessage.GetResponse(await this.connectionService.PUT(api_endpoints.personalcredential,postUpdateCredential) as iStatus)
     }
 
@@ -329,6 +334,8 @@ export class WorkAreaBody {
 
     CloseModal(modalid: string)
     {
+        this.updateCredentialForm.reset();
+        this.updateCredentialForm.reset();
         ($(`#${modalid}`) as any).modal('hide')
         this.RequestStatus = {status: "",statusMessage:""}
     }
@@ -400,7 +407,6 @@ export class WorkAreaBody {
     {
         this.signalR.GetNotification((message) => {
             let notification = JSON.parse(message)
-            console.log(notification)
             switch(notification.status)
             {
                 case "new":
@@ -414,13 +420,14 @@ export class WorkAreaBody {
                             break;
                         case "personal":
                             this.personalcredentials.push(notification.data)
+                            
                     }
                     break;
                 case "update":
                     switch(notification.type)
                     {
                         case "credential":
-                            let index = this.credentials.findIndex(c => c.id != notification.data.id) - 1
+                            let index = this.credentials.findIndex(c => c.id == notification.data.id)
                             this.credentials[index].teamid = notification.data.teamid
                             this.credentials[index].teamname = notification.data.teamname
                             this.credentials[index].domain = notification.data.domain
@@ -430,7 +437,7 @@ export class WorkAreaBody {
                             this.credentials[index].username = notification.data.username
                             break; 
                         case "personal":
-                            let pindex = this.personalcredentials.findIndex(c => c.id != notification.data.id) - 1
+                            let pindex = this.personalcredentials.findIndex(c => c.id == notification.data.id)
                             this.personalcredentials[pindex].personalfolderid = notification.data.teamid
                             this.personalcredentials[pindex].domain = notification.data.domain
                             this.personalcredentials[pindex].email = notification.data.email

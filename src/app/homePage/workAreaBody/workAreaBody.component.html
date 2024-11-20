@@ -23,11 +23,13 @@
                     <td style="background-color: white !important;">{{item.remote}}</td>
                     <td style="background-color: white !important;">{{item.note}}</td>
                     <td style="background-color: white !important;" class="nospaceincell">
+                      <div class="text-end">
                         <p id={{item.id}} class="d-inline"></p>&nbsp;
                         <i class="bi bi-copy ml-1" (click) = "CopyPassword('cred',item.id,item.teamid)"></i>&nbsp;
                         <i type="cred" id={{item.id}}-eye class="bi bi-eye" (click) = "ShowPassword('cred',item.id,item.teamid)"></i>&nbsp;
                         <i class="bi bi-pencil" (click) = "OpenUpdateCredentialModal('UpdateCredential',item.id,item.teamid)"></i>&nbsp;
                         <i class="bi bi-trash" (click) = "OpenDeleteCredentialModal('DeleteCredential','team', item.domain||'', item.username, item.teamid||'', item.id)"></i> &nbsp;
+                      </div>
                     </td>
                 </tr>
             }
@@ -58,6 +60,7 @@
             <td style="background-color: white !important;">{{item.issuedby}}</td>
             <td style="background-color: white !important;">{{item.expirationdate}}</td>
             <td class="nospaceincell text-end" style="background-color: white !important;">
+              <div class="text-end">
                 <p id={{item.id}} class="d-inline"></p>&nbsp;
                 @if(item.pem)
                 {
@@ -74,8 +77,7 @@
                     <i class="bi bi-save" (click)="DownloadCertificate(item.id,item.teamid)"></i> &nbsp;
                     <i class="bi bi-trash" (click) = "OpenDeleteCertificateModal('DeleteCertificate',item.issuedto,item.teamid,item.id)"></i> &nbsp;
                 }
-
-                
+              </div>
             </td>
         </tr>
     }
@@ -89,7 +91,7 @@
                 <td>Username</td>
                 <td>Remote</td>
                 <td>Note</td>
-                <td colspan="2">Password</td>
+                <td colspan="2"></td>
             </tr>
         </thead>
         <tbody >
@@ -101,9 +103,7 @@
                 <td class="nospaceincell" style="background-color: white !important;">
                     <p id={{item.id}} class="d-inline">{{item.password}}</p>&nbsp;
                     <i class="bi bi-copy ml-1" (click) = "CopyPassword('personalCred',item.id,item.personalfolderid||undefined)"></i>&nbsp;
-                    <i type="cred" id={{item.id}}-eye class="bi bi-eye" (click) = "ShowPassword('personalCred',item.id, item.personalfolderid||undefined)"></i>
-                </td>
-                <td class="nospaceincell" style="background-color: white !important;">
+                    <i type="cred" id={{item.id}}-eye class="bi bi-eye" (click) = "ShowPassword('personalCred',item.id, item.personalfolderid||undefined)"></i>&nbsp;
                     <i class="bi bi-pencil" (click) = "this.OpenUpdatePersonalCredentialModal('EditPersonalCredential',item.personalfolderid||undefined,item.id)"></i>&nbsp;
                     <i class="bi bi-trash" (click) = "OpenDeleteCredentialModal('DeleteCredential','personal',item.domain||'',item.username, item.personalfolderid||'',item.id)"></i> &nbsp;
                 </td>

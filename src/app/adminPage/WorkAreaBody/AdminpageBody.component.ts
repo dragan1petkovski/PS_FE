@@ -91,7 +91,7 @@ export class AdminpageBodyComponent
                             this.tableData.clients.push(notification.data)
                             break;
                         case 'update':
-                            let index = this.tableData.clients.findIndex(c => c.id == notification.data.id) - 1
+                            let index = this.tableData.clients.findIndex(c => c.id == notification.data.id)
                             this.tableData.clients[index] = notification.data
                             break;
                         case 'delete':
@@ -106,7 +106,7 @@ export class AdminpageBodyComponent
                             this.tableData.teams.push(notification.data)
                             break;
                         case 'update':
-                            let index = this.tableData.teams.findIndex(c => c.id == notification.data.id) - 1
+                            let index = this.tableData.teams.findIndex(c => c.id == notification.data.id)
                             this.tableData.teams[index] = notification.data
                             break;
                         case 'delete':
@@ -121,7 +121,7 @@ export class AdminpageBodyComponent
                             this.tableData.users.push(notification.data)
                             break;
                         case 'update':
-                            let index = this.tableData.users.findIndex(c => c.id == notification.data.id) - 1
+                            let index = this.tableData.users.findIndex(c => c.id == notification.data.id)
                             this.tableData.users[index] = notification.data
                             break;
                         case 'delete':
@@ -180,6 +180,7 @@ export class AdminpageBodyComponent
             }
         }
         let updateTeam = {Id: this.updateTeamForm.value.id||"", name: this.updateTeamForm.value.name||"" , userIds: userList}
+        console.log(updateTeam)
         this.RequestStatus = await this.statusMessage.GetResponse(await this.connectionService.PUT(api_endpoints.team,updateTeam) as iStatus)
     }
 //************ Client ************* */
