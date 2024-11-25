@@ -6,6 +6,7 @@ export interface iGetUserForAdminPage{
     lastname: string,
     email: string,
     username: string,
+    rolename: string | null,
     createdate: string,
     updatedate: string
 }
@@ -23,6 +24,14 @@ export interface iPostUser
     email: string | null | undefined,
     username: string | null | undefined,
     clientTeamPairs: iTeamClientPar[] | null | undefined
+}
+
+export interface iPostAdmin
+{
+    firstname: string,
+    lastname: string,
+    email: string,
+    username: string
 }
 
 export interface iPostUpdateUser

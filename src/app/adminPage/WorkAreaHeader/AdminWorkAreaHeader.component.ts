@@ -4,7 +4,7 @@ import { iGetClientsForUser, iPostClient } from "../../interfaces/Client/Client"
 import { ConnectionService} from "../../utility/connection.service"
 import { api_endpoints } from "../../StaticObjects/api_endpoints";
 import { CommonModule, NgFor } from "@angular/common";
-import { iGetUserForTeamModal, iPostUser,iPostUpdateUser } from "../../interfaces/User/User"
+import { iGetUserForTeamModal, iPostUser,iPostUpdateUser, iPostAdmin } from "../../interfaces/User/User"
 import { iClientTeamMapping, iPostTeam } from "../../interfaces/Team/Team";
 import { iStatusMessage } from "../../utility/iStatusMessage";
 import { ValidationMessages } from "../../StaticObjects/ValidationMessages";
@@ -57,6 +57,8 @@ export class AdminWorkAreaHeaderComponent
         username: new FormControl('',[Validators.required,Validators.pattern("^[a-zA-Z0-9-_]*$")]),
         email: new FormControl('',[Validators.required,Validators.email])
     })
+
+
 
     constructor (private connectionService: ConnectionService, public validationMessage: ValidationMessages, private statusMessage: StatusMessage) {}
 
@@ -132,11 +134,25 @@ export class AdminWorkAreaHeaderComponent
             }
     }
 
+
+    async AddAdmin()
+    {
+        let postUser: iPostAdmin = {
+            firstname: this.AddUserFormGroup.value.firstname||"",
+            lastname: this.AddUserFormGroup.value.lastname||"",
+            email: this.AddUserFormGroup.value.email||"",
+            username: this.AddUserFormGroup.value.username||"",
+
+        }
+        this.RequestStatus = await this.statusMessage.GetResponse(await this.connectionService.POST(api_endpoints.user.concat("/admin"),postUser) as iStatus)
+        this.AddUserFormGroup.reset()
+    }
+
+
     async ShowAddUserModal()
     {
         this.clientTeamMappingList = await this.connectionService.GET(api_endpoints.getteammapping.concat("all")) as iClientTeamMapping[]
         ($('#AddUserModal') as any).modal('show')
-        
     }
 
     ClearResponseStatus()

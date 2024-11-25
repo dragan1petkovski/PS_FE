@@ -4,6 +4,7 @@
       <button type="button" class="btn btn-ns" data-bs-toggle="modal" data-bs-target="#AddClientModal">Add Client</button>&nbsp;
       <button type="button" class="btn btn-ns" (click) = "ShowAddTeamModal()">Add Team</button>&nbsp;
       <button type="button" class="btn btn-ns" (click) = "ShowAddUserModal()">Add User</button>&nbsp;
+      <button type="button" class="btn btn-ns" data-bs-toggle="modal" data-bs-target="#AddAdmin">Add Admin</button>&nbsp;
     </div>
     <div>
       <form [formGroup]="searchForm">
@@ -262,3 +263,102 @@
   </div> 
 </div> 
 </div>
+
+
+<!-- Add Admin -->
+<div class="modal" tabindex="-1" role="dialog" id="AddAdmin"> 
+  <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document"> 
+    <div class="modal-content"> 
+      <div class="modal-header btn-ns"> 
+        <h4 class="modal-title">AddUser</h4> 
+      </div> 
+      <div class="modal-body">
+  
+        @if(RequestStatus.status === "OK")
+        {
+          <div class="alert alert-success">
+            <p>{{RequestStatus.statusMessage}}</p>
+          </div>
+        }
+        @else if(RequestStatus.status === "NOTOK")
+        {
+          <div class="alert alert-danger">
+            <p>{{RequestStatus.statusMessage}}</p>
+          </div>
+        }
+  
+        <form [formGroup]="AddUserFormGroup">
+  
+          <div class="row mt-3">
+            <div class="col-3 text-end">
+              <p>Enter first name<span class="text-danger" *ngIf="this.AddUserFormGroup.controls.firstname.invalid">*</span></p>
+            </div>
+            <div class="col-9">
+              <input type="text" class="form-control" formControlName = "firstname">
+            </div>
+          </div>
+          @if(this.AddUserFormGroup.controls.firstname.dirty && this.AddUserFormGroup.controls.firstname.invalid)
+          {
+            <div class="row">
+              <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidName")}}</p>
+            </div>
+          }
+  
+  
+          <div class="row mt-3">
+            <div class="col-3 text-end">
+              <p>Enter last name<span class="text-danger" *ngIf="this.AddUserFormGroup.controls.lastname.invalid">*</span></p>
+            </div>
+            <div class="col-9">
+              <input type="text" class="form-control" formControlName = "lastname">
+            </div>
+          </div>
+          @if(this.AddUserFormGroup.controls.lastname.dirty && this.AddUserFormGroup.controls.lastname.invalid)
+          {
+            <div class="row">
+              <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidName")}}</p>
+            </div>
+          }
+          
+          <div class="row mt-3">
+            <div class="col-3 text-end">
+              <p>Enter email<span class="text-danger" *ngIf="this.AddUserFormGroup.controls.email.invalid">*</span></p>
+            </div>
+            <div class="col-9">
+              <input type="email" class="form-control" formControlName = "email">
+            </div>
+          </div>
+          @if(this.AddUserFormGroup.controls.email.dirty && this.AddUserFormGroup.controls.email.invalid)
+          {
+            <div class="row">
+              <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidEmail")}}</p>
+            </div>
+          }
+          
+          <div class="row mt-3">
+            <div class="col-3 text-end">
+              <p>Enter username<span *ngIf="this.AddUserFormGroup.controls.username.invalid" class="text-danger">*</span></p>
+            </div>
+            <div class="col-9">
+              <input type="text" class="form-control" formControlName = "username">
+            </div>
+          </div>
+          @if(this.AddUserFormGroup.controls.username.dirty && this.AddUserFormGroup.controls.username.invalid)
+          {
+            <div class="row">
+              <p class="text-center text-danger">{{this.validationMessage.GetValidationMessage("InvalidUserName")}}</p>
+            </div>
+          }
+           
+        </form>
+  
+      </div> 
+      <div class="modal-footer"> 
+        <input type="submit" value="Add User" class="btn btn-ns" [disabled]= "!AddUserFormGroup.valid" (click) = "AddAdmin()" >
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal" (click) = "CloseModal()" > 
+          Close 
+        </button> 
+      </div> 
+    </div> 
+  </div> 
+  </div>
